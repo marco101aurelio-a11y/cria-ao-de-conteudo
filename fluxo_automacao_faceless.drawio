@@ -1,0 +1,130 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram name="Fluxograma Automação Faceless TikTok" id="FACELESS-BPMN-001">
+    <mxGraphModel dx="2288" dy="1517" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="5PPaIkloFIy7T4EwC_c_-1" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="" vertex="1">
+          <mxGeometry height="1530" width="1530" x="-80" y="-90" as="geometry" />
+        </mxCell>
+        <mxCell id="pool1" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f9d0c4;strokeColor=#b85450;fillStyle=auto;labelBackgroundColor=none;" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;1. COLETA (TikTok API)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="180" width="1250" x="20" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="pool2" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e2f0d9;strokeColor=#82b366;" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;2. OPENROUTER (Texto)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="150" width="1250" x="20" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="n_db" parent="pool2" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;DB Supabase (viral_refs)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="90" x="395" y="-40" as="geometry" />
+        </mxCell>
+        <mxCell id="pool3" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;3. CLONE VISUAL (IA Video)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="150" width="1250" x="20" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="pool4" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;4. DISTRIBUIÇÃO&lt;/font&gt;" vertex="1">
+          <mxGeometry height="150" width="1250" x="20" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="n_start" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Início (Scheduler)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="70" x="90" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="n_scraper" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Worker API Tiktok (Videos/Tags/Áudios)" vertex="1">
+          <mxGeometry height="60" width="120" x="220" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="n_transcrever" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Transcrever Bruto" vertex="1">
+          <mxGeometry height="60" width="120" x="400" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="n_check" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Vídeo tem potencial?&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="580" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="n_llm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="OpenRouter (Roteiro Hook+Copy)" vertex="1">
+          <mxGeometry height="60" width="120" x="560" y="245" as="geometry" />
+        </mxCell>
+        <mxCell id="n_prompts" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Gerar Prompts de Imagem" vertex="1">
+          <mxGeometry height="60" width="120" x="740" y="245" as="geometry" />
+        </mxCell>
+        <mxCell id="n_voz" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ElevenLabs API (Clonar Voz)" vertex="1">
+          <mxGeometry height="60" width="120" x="740" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="n_broll" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Images B-Rolls (Flux/IA Aberta)" vertex="1">
+          <mxGeometry height="60" width="120" x="560" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="n_lipsync" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="HeyGen / Hedra AI (Sincronia Labial Foto)" vertex="1">
+          <mxGeometry height="60" width="120" x="1000" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="n_montagem" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Montagem de Cenas (Sincronizar Mídia)" vertex="1">
+          <mxGeometry height="60" width="120" x="920" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="n_tiktok" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Publicação Tiktok (Draft Mode)" vertex="1">
+          <mxGeometry height="60" width="120" x="1100" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="n_end" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;border=2;fontStyle=1" value="Fim" vertex="1">
+          <mxGeometry height="40" width="40" x="1250" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="EDGE_n_start_n_scraper" edge="1" parent="1" source="n_start" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_scraper" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EDGE_n_scraper_n_transcrever" edge="1" parent="1" source="n_scraper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_transcrever" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EDGE_n_transcrever_n_check" edge="1" parent="1" source="n_transcrever" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_check" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EDGE_n_transcrever_n_db" edge="1" parent="1" source="n_transcrever" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" target="n_db" value="Salva dados">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EDGE_n_check_n_scraper" edge="1" parent="1" source="n_check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.33;entryY=-0.029;entryDx=0;entryDy=0;entryPerimeter=0;" target="n_scraper" value="Não">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="55" />
+              <mxPoint x="260" y="55" />
+            </Array>
+            <mxPoint x="580" y="60" as="sourcePoint" />
+            <mxPoint x="340" y="60" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EDGE_n_check_n_llm" edge="1" parent="1" source="n_check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_llm" value="Sim (Viral)">
+          <mxGeometry relative="1" x="-0.3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EDGE_n_llm_n_prompts" edge="1" parent="1" source="n_llm" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_prompts" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EDGE_n_llm_n_db" edge="1" parent="1" source="n_llm" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" value="Update Playbook">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EDGE_n_llm_n_broll" edge="1" parent="1" source="n_llm" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_broll" value="Instruções">
+          <mxGeometry relative="1" x="0.2222" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EDGE_n_prompts_n_voz" edge="1" parent="1" source="n_prompts" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_voz" value="Locução">
+          <mxGeometry relative="1" x="0.2222" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EDGE_n_voz_n_lipsync" edge="1" parent="1" source="n_voz" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_lipsync" value="Áudio da voz">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EDGE_n_broll_n_montagem" edge="1" parent="1" source="n_broll" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="n_montagem" value="Imagens extras">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="575" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EDGE_n_lipsync_n_montagem" edge="1" parent="1" source="n_lipsync" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_montagem" value="Clone Falante (Avatar)">
+          <mxGeometry relative="1" x="0.7059" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EDGE_n_montagem_n_tiktok" edge="1" parent="1" source="n_montagem" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_tiktok" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EDGE_n_tiktok_n_end" edge="1" parent="1" source="n_tiktok" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="n_end" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

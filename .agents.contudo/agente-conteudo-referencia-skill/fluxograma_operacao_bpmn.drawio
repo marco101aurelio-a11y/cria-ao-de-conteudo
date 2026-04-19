@@ -1,0 +1,182 @@
+<mxfile host="Electron" type="device">
+  <diagram name="Fluxograma BPMN 2.0" id="BPMN-OPERACAO">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="pool1" value="1. GESTOR" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f9d0c4;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="20" y="20" width="1300" height="220" as="geometry" />
+    </mxCell>
+<mxCell id="pool2" value="2. PLANEJAMENTO" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e2f0d9;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="20" y="240" width="1300" height="120" as="geometry" />
+    </mxCell>
+<mxCell id="pool3" value="3. CONTEÚDO" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="20" y="360" width="1300" height="120" as="geometry" />
+    </mxCell>
+<mxCell id="pool4" value="4. COMERCIAL" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="20" y="480" width="1300" height="120" as="geometry" />
+    </mxCell>
+<mxCell id="pool5" value="5. CRM" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="20" y="600" width="1300" height="120" as="geometry" />
+    </mxCell>
+<mxCell id="n_start" value="Início" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="100" y="110" width="40" height="40" as="geometry" />
+    </mxCell>
+<mxCell id="n_colfb" value="Coletar Feedbacks
+Semanais" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="200" y="100" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_db" value="BD Métricas" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="215" y="170" width="90" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_analisar" value="Analisar Dados" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="380" y="100" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_decisao" value="Dados
+Suficientes?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="540" y="90" width="80" height="80" as="geometry" />
+    </mxCell>
+<mxCell id="n_aprofundar" value="Aprofundar
+Coleta" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="520" y="180" width="120" height="50" as="geometry" />
+    </mxCell>
+<mxCell id="n_pesq_viral" value="Pesquisa Viral" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="680" y="100" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_playbook" value="Criar Playbook" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="860" y="100" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_notificar" value="Notificar Equipe" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;border=2;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="1050" y="110" width="40" height="40" as="geometry" />
+    </mxCell>
+<mxCell id="n_plan" value="Planejamento
+(4 Agentes IA)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1010" y="270" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_pesq_ref" value="Pesquisa Refs" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1010" y="390" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_script" value="Script (IA)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="820" y="390" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_gravacao" value="Gravação" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="630" y="390" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_edicao" value="Edição (CapCut)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="440" y="390" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_public" value="Publicação
+TikTok" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="250" y="390" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_distrib" value="Distrib. Orgânica" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="80" y="390" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_landing" value="Pg de Captura" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="80" y="510" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_oferta" value="Oferta(Cliente)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="250" y="510" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_check" value="Checkout" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="440" y="510" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_reinvest" value="Reinvestimento
+Tráfego" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;border=2;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="660" y="520" width="40" height="40" as="geometry" />
+    </mxCell>
+<mxCell id="n_tag" value="Tag / HubSpot" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="80" y="630" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_qualif" value="Filtros Qualif" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="250" y="630" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_email" value="Email/Pop-Up" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="440" y="630" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_upsell" value="Upsell" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="630" y="630" width="120" height="60" as="geometry" />
+    </mxCell>
+<mxCell id="n_loop" value="Creator
+Flywheel" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;border=2;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="850" y="640" width="50" height="50" as="geometry" />
+    </mxCell>
+        <mxCell id="EDGE_n_start_n_colfb" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_start" target="n_colfb">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_colfb_n_analisar" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_colfb" target="n_analisar">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_colfb_n_db" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" edge="1" parent="1" source="n_colfb" target="n_db">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_analisar_n_decisao" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_analisar" target="n_decisao">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_decisao_n_aprofundar" value="Não" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_decisao" target="n_aprofundar">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_aprofundar_n_analisar" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_aprofundar" target="n_analisar">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_decisao_n_pesq_viral" value="Sim" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_decisao" target="n_pesq_viral">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_pesq_viral_n_playbook" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_pesq_viral" target="n_playbook">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_playbook_n_notificar" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_playbook" target="n_notificar">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_notificar_n_plan" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" edge="1" parent="1" source="n_notificar" target="n_plan">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_plan_n_pesq_ref" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_plan" target="n_pesq_ref">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_pesq_ref_n_script" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_pesq_ref" target="n_script">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_script_n_gravacao" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_script" target="n_gravacao">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_gravacao_n_edicao" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_gravacao" target="n_edicao">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_edicao_n_public" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_edicao" target="n_public">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_public_n_distrib" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_public" target="n_distrib">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_distrib_n_landing" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_distrib" target="n_landing">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_landing_n_oferta" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_landing" target="n_oferta">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_oferta_n_check" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_oferta" target="n_check">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_check_n_reinvest" value="Loop" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" edge="1" parent="1" source="n_check" target="n_reinvest">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_landing_n_tag" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" edge="1" parent="1" source="n_landing" target="n_tag">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_tag_n_qualif" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_tag" target="n_qualif">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_qualif_n_email" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_qualif" target="n_email">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_email_n_upsell" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_email" target="n_upsell">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+<mxCell id="EDGE_n_upsell_n_loop" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" edge="1" parent="1" source="n_upsell" target="n_loop">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

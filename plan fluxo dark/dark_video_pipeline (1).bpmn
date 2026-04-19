@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+  xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd"
+  id="dark-video-pipeline"
+  name="Pipeline Dark Video com Narracao"
+  targetNamespace="http://staage.io/bpmn/dark-video-pipeline">
+
+  <!-- ============================================================
+       PROCESSO PRINCIPAL
+       ============================================================ -->
+  <process id="proc_dark_video" name="Pipeline Dark Video com Narracao" isExecutable="true">
+
+    <!-- EVENTOS -->
+    <startEvent id="evt_start" name="Inicio&#10;(Input: tema)">
+      <outgoing>flow_start_to_m1</outgoing>
+    </startEvent>
+
+    <endEvent id="evt_end" name="Fim&#10;(Output: final_output.mp4)">
+      <incoming>flow_m5_to_end</incoming>
+    </endEvent>
+
+    <endEvent id="evt_error_end" name="Fim com Erro&#10;(Notificar operador)">
+      <incoming>flow_error_to_end</incoming>
+      <errorEventDefinition errorRef="err_pipeline_failed"/>
+    </endEvent>
+
+    <!-- ============================================================
+         MODULO 1: GERADOR DE ROTEIRO
+         ============================================================ -->
+    <subProcess id="sub_m1" name="MODULO 1 - Gerador de Roteiro">
+      <incoming>flow_start_to_m1</incoming>
+      <outgoing>flow_m1_to_m1_gw</outgoing>
+
+      <startEvent id="m1_start">
+        <outgoing>m1_flow_1</outgoing>
+      </startEvent>
+
+      <serviceTask id="m1_call_openrouter" name="Chamar OpenRouter API&#10;(Llama 3.3 Free)&#10;POST /v1/chat/completions">
+        <incoming>m1_flow_1</incoming>
+        <outgoing>m1_flow_2</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m1_parse_json" name="Parse JSON do Response&#10;Validar schema roteiro.json&#10;(min 8 blocos, alternancia NARRACAO/VISUAL)">
+        <incoming>m1_flow_2</incoming>
+        <outgoing>m1_flow_3</outgoing>
+      </serviceTask>
+
+      <exclusiveGateway id="m1_gw_valid" name="JSON valido?">
+        <incoming>m1_flow_3</incoming>
+        <outgoing>m1_flow_valid_yes</outgoing>
+        <outgoing>m1_flow_valid_no</outgoing>
+      </exclusiveGateway>
+
+      <exclusiveGateway id="m1_gw_retry" name="Tentativas &lt; 3?">
+        <incoming>m1_flow_valid_no</incoming>
+        <outgoing>m1_flow_retry_yes</outgoing>
+        <outgoing>m1_flow_retry_no</outgoing>
+      </exclusiveGateway>
+
+      <serviceTask id="m1_retry" name="Repetir chamada&#10;(temperatura 0.2)">
+        <incoming>m1_flow_retry_yes</incoming>
+        <outgoing>m1_flow_back</outgoing>
+      </serviceTask>
+
+      <task id="m1_raise_error" name="Lancar erro:&#10;ROTEIRO_GENERATION_FAILED">
+        <incoming>m1_flow_retry_no</incoming>
+        <outgoing>m1_flow_error</outgoing>
+      </task>
+
+      <serviceTask id="m1_save_roteiro" name="Salvar roteiro.json&#10;em /output">
+        <incoming>m1_flow_valid_yes</incoming>
+        <outgoing>m1_flow_end</outgoing>
+      </serviceTask>
+
+      <endEvent id="m1_end">
+        <incoming>m1_flow_end</incoming>
+      </endEvent>
+
+      <endEvent id="m1_end_error">
+        <incoming>m1_flow_error</incoming>
+        <errorEventDefinition errorRef="err_pipeline_failed"/>
+      </endEvent>
+
+      <sequenceFlow id="m1_flow_1" sourceRef="m1_start" targetRef="m1_call_openrouter"/>
+      <sequenceFlow id="m1_flow_2" sourceRef="m1_call_openrouter" targetRef="m1_parse_json"/>
+      <sequenceFlow id="m1_flow_3" sourceRef="m1_parse_json" targetRef="m1_gw_valid"/>
+      <sequenceFlow id="m1_flow_valid_yes" name="Sim" sourceRef="m1_gw_valid" targetRef="m1_save_roteiro"/>
+      <sequenceFlow id="m1_flow_valid_no" name="Nao" sourceRef="m1_gw_valid" targetRef="m1_gw_retry"/>
+      <sequenceFlow id="m1_flow_retry_yes" name="Sim" sourceRef="m1_gw_retry" targetRef="m1_retry"/>
+      <sequenceFlow id="m1_flow_retry_no" name="Nao" sourceRef="m1_gw_retry" targetRef="m1_raise_error"/>
+      <sequenceFlow id="m1_flow_back" sourceRef="m1_retry" targetRef="m1_call_openrouter"/>
+      <sequenceFlow id="m1_flow_end" sourceRef="m1_save_roteiro" targetRef="m1_end"/>
+      <sequenceFlow id="m1_flow_error" sourceRef="m1_raise_error" targetRef="m1_end_error"/>
+    </subProcess>
+
+    <exclusiveGateway id="gw_m1_check" name="Modulo 1 OK?">
+      <incoming>flow_m1_to_m1_gw</incoming>
+      <outgoing>flow_m1_ok</outgoing>
+      <outgoing>flow_m1_fail</outgoing>
+    </exclusiveGateway>
+
+    <!-- ============================================================
+         MODULO 2: GERADOR DE AUDIO (TTS)
+         ============================================================ -->
+    <subProcess id="sub_m2" name="MODULO 2 - Gerador de Audio (TTS)">
+      <incoming>flow_m1_ok</incoming>
+      <outgoing>flow_m2_to_m2_gw</outgoing>
+
+      <startEvent id="m2_start">
+        <outgoing>m2_flow_1</outgoing>
+      </startEvent>
+
+      <serviceTask id="m2_extract_text" name="Extrair blocos NARRACAO&#10;de roteiro.json&#10;Concatenar em texto unico">
+        <incoming>m2_flow_1</incoming>
+        <outgoing>m2_flow_2</outgoing>
+      </serviceTask>
+
+      <exclusiveGateway id="m2_gw_tts_choice" name="Motor TTS configurado?">
+        <incoming>m2_flow_2</incoming>
+        <outgoing>m2_flow_kokoro</outgoing>
+        <outgoing>m2_flow_elevenlabs</outgoing>
+      </exclusiveGateway>
+
+      <serviceTask id="m2_kokoro" name="Kokoro TTS (local)&#10;kokoro.create(text, voice=af_bella)&#10;Output: narration.wav">
+        <incoming>m2_flow_kokoro</incoming>
+        <outgoing>m2_flow_wav_to_mp3</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m2_elevenlabs" name="ElevenLabs API&#10;POST /v1/text-to-speech/{voice_id}&#10;Output: narration.mp3">
+        <incoming>m2_flow_elevenlabs</incoming>
+        <outgoing>m2_flow_mp3_ready</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m2_convert_wav" name="Converter WAV para MP3&#10;ffmpeg -i narration.wav -ab 192k narration.mp3">
+        <incoming>m2_flow_wav_to_mp3</incoming>
+        <outgoing>m2_flow_mp3_ready</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m2_save_audio" name="Salvar narration.mp3&#10;em /output">
+        <incoming>m2_flow_mp3_ready</incoming>
+        <outgoing>m2_flow_end</outgoing>
+      </serviceTask>
+
+      <endEvent id="m2_end">
+        <incoming>m2_flow_end</incoming>
+      </endEvent>
+
+      <sequenceFlow id="m2_flow_1" sourceRef="m2_start" targetRef="m2_extract_text"/>
+      <sequenceFlow id="m2_flow_2" sourceRef="m2_extract_text" targetRef="m2_gw_tts_choice"/>
+      <sequenceFlow id="m2_flow_kokoro" name="Kokoro (ENV=local)" sourceRef="m2_gw_tts_choice" targetRef="m2_kokoro"/>
+      <sequenceFlow id="m2_flow_elevenlabs" name="ElevenLabs (ENV=api)" sourceRef="m2_gw_tts_choice" targetRef="m2_elevenlabs"/>
+      <sequenceFlow id="m2_flow_wav_to_mp3" sourceRef="m2_kokoro" targetRef="m2_convert_wav"/>
+      <sequenceFlow id="m2_flow_mp3_ready" sourceRef="m2_elevenlabs" targetRef="m2_save_audio"/>
+      <sequenceFlow id="m2_flow_mp3_convert_done" sourceRef="m2_convert_wav" targetRef="m2_save_audio"/>
+      <sequenceFlow id="m2_flow_end" sourceRef="m2_save_audio" targetRef="m2_end"/>
+    </subProcess>
+
+    <exclusiveGateway id="gw_m2_check" name="Modulo 2 OK?">
+      <incoming>flow_m2_to_m2_gw</incoming>
+      <outgoing>flow_m2_ok</outgoing>
+      <outgoing>flow_m2_fail</outgoing>
+    </exclusiveGateway>
+
+    <!-- ============================================================
+         MODULO 3: GERADOR DE TIMESTAMPS (STT)
+         ============================================================ -->
+    <subProcess id="sub_m3" name="MODULO 3 - Gerador de Timestamps (STT)">
+      <incoming>flow_m2_ok</incoming>
+      <outgoing>flow_m3_to_m3_gw</outgoing>
+
+      <startEvent id="m3_start">
+        <outgoing>m3_flow_1</outgoing>
+      </startEvent>
+
+      <serviceTask id="m3_whisper" name="Whisper STT&#10;model.transcribe(narration.mp3,&#10;word_timestamps=True, language=pt)">
+        <incoming>m3_flow_1</incoming>
+        <outgoing>m3_flow_2</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m3_extract_words" name="Extrair array de palavras&#10;com start/end por segment&#10;Schema: [{word, start, end}]">
+        <incoming>m3_flow_2</incoming>
+        <outgoing>m3_flow_3</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m3_save_timestamps" name="Salvar timestamps.json&#10;em /output">
+        <incoming>m3_flow_3</incoming>
+        <outgoing>m3_flow_end</outgoing>
+      </serviceTask>
+
+      <endEvent id="m3_end">
+        <incoming>m3_flow_end</incoming>
+      </endEvent>
+
+      <sequenceFlow id="m3_flow_1" sourceRef="m3_start" targetRef="m3_whisper"/>
+      <sequenceFlow id="m3_flow_2" sourceRef="m3_whisper" targetRef="m3_extract_words"/>
+      <sequenceFlow id="m3_flow_3" sourceRef="m3_extract_words" targetRef="m3_save_timestamps"/>
+      <sequenceFlow id="m3_flow_end" sourceRef="m3_save_timestamps" targetRef="m3_end"/>
+    </subProcess>
+
+    <exclusiveGateway id="gw_m3_check" name="Modulo 3 OK?">
+      <incoming>flow_m3_to_m3_gw</incoming>
+      <outgoing>flow_m3_ok</outgoing>
+      <outgoing>flow_m3_fail</outgoing>
+    </exclusiveGateway>
+
+    <!-- ============================================================
+         MODULO 4: COLETOR DE MIDIA (B-ROLL)
+         ============================================================ -->
+    <subProcess id="sub_m4" name="MODULO 4 - Coletor de Midia (B-Roll)">
+      <incoming>flow_m3_ok</incoming>
+      <outgoing>flow_m4_to_m4_gw</outgoing>
+
+      <startEvent id="m4_start">
+        <outgoing>m4_flow_1</outgoing>
+      </startEvent>
+
+      <serviceTask id="m4_extract_keywords" name="Extrair keywords dos blocos VISUAL&#10;de roteiro.json">
+        <incoming>m4_flow_1</incoming>
+        <outgoing>m4_flow_2</outgoing>
+      </serviceTask>
+
+      <subProcess id="m4_sub_loop" name="Loop por keyword">
+        <incoming>m4_flow_2</incoming>
+        <outgoing>m4_flow_3</outgoing>
+
+        <startEvent id="m4_loop_start">
+          <outgoing>m4_loop_flow_1</outgoing>
+        </startEvent>
+
+        <serviceTask id="m4_pexels_search" name="Pexels API&#10;GET /videos/search?query={keyword}&#10;&amp;per_page=3&amp;orientation=portrait">
+          <incoming>m4_loop_flow_1</incoming>
+          <outgoing>m4_loop_flow_2</outgoing>
+        </serviceTask>
+
+        <exclusiveGateway id="m4_gw_result" name="Resultado encontrado?">
+          <incoming>m4_loop_flow_2</incoming>
+          <outgoing>m4_loop_flow_found</outgoing>
+          <outgoing>m4_loop_flow_fallback</outgoing>
+        </exclusiveGateway>
+
+        <serviceTask id="m4_fallback" name="Usar keyword fallback&#10;'dark mystery'&#10;Repetir busca Pexels">
+          <incoming>m4_loop_flow_fallback</incoming>
+          <outgoing>m4_loop_flow_fallback_done</outgoing>
+        </serviceTask>
+
+        <serviceTask id="m4_download_clip" name="Download clip (5-15s)&#10;Salvar /output/clips/clip_{N}.mp4">
+          <incoming>m4_loop_flow_found</incoming>
+          <incoming>m4_loop_flow_fallback_done</incoming>
+          <outgoing>m4_loop_flow_end</outgoing>
+        </serviceTask>
+
+        <endEvent id="m4_loop_end">
+          <incoming>m4_loop_flow_end</incoming>
+        </endEvent>
+
+        <sequenceFlow id="m4_loop_flow_1" sourceRef="m4_loop_start" targetRef="m4_pexels_search"/>
+        <sequenceFlow id="m4_loop_flow_2" sourceRef="m4_pexels_search" targetRef="m4_gw_result"/>
+        <sequenceFlow id="m4_loop_flow_found" name="Sim" sourceRef="m4_gw_result" targetRef="m4_download_clip"/>
+        <sequenceFlow id="m4_loop_flow_fallback" name="Nao" sourceRef="m4_gw_result" targetRef="m4_fallback"/>
+        <sequenceFlow id="m4_loop_flow_fallback_done" sourceRef="m4_fallback" targetRef="m4_download_clip"/>
+        <sequenceFlow id="m4_loop_flow_end" sourceRef="m4_download_clip" targetRef="m4_loop_end"/>
+      </subProcess>
+
+      <serviceTask id="m4_download_music" name="Pixabay Music API&#10;GET /api/videos/?category=music&#10;&amp;q=dark+cinematic&#10;Salvar background.mp3">
+        <incoming>m4_flow_3</incoming>
+        <outgoing>m4_flow_end</outgoing>
+      </serviceTask>
+
+      <endEvent id="m4_end">
+        <incoming>m4_flow_end</incoming>
+      </endEvent>
+
+      <sequenceFlow id="m4_flow_1" sourceRef="m4_start" targetRef="m4_extract_keywords"/>
+      <sequenceFlow id="m4_flow_2" sourceRef="m4_extract_keywords" targetRef="m4_sub_loop"/>
+      <sequenceFlow id="m4_flow_3" sourceRef="m4_sub_loop" targetRef="m4_download_music"/>
+      <sequenceFlow id="m4_flow_end" sourceRef="m4_download_music" targetRef="m4_end"/>
+    </subProcess>
+
+    <exclusiveGateway id="gw_m4_check" name="Modulo 4 OK?">
+      <incoming>flow_m4_to_m4_gw</incoming>
+      <outgoing>flow_m4_ok</outgoing>
+      <outgoing>flow_m4_fail</outgoing>
+    </exclusiveGateway>
+
+    <!-- ============================================================
+         MODULO 5: MONTADOR DE VIDEO
+         ============================================================ -->
+    <subProcess id="sub_m5" name="MODULO 5 - Montador de Video">
+      <incoming>flow_m4_ok</incoming>
+      <outgoing>flow_m5_to_end</outgoing>
+
+      <startEvent id="m5_start">
+        <outgoing>m5_flow_1</outgoing>
+      </startEvent>
+
+      <serviceTask id="m5_trim_clips" name="Passo 5.1: Normalizar duracao de clips&#10;ffmpeg -t {duracao_bloco} -vf scale=1080:1920&#10;crop=1080:1920 clip_{N}_trimmed.mp4">
+        <incoming>m5_flow_1</incoming>
+        <outgoing>m5_flow_2</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m5_concat" name="Passo 5.2: Concatenar clips trimados&#10;ffmpeg -f concat -i concat_list.txt&#10;Output: video_base.mp4">
+        <incoming>m5_flow_2</incoming>
+        <outgoing>m5_flow_3</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m5_mix_audio" name="Passo 5.3: Mixar audio&#10;narration vol=1.0 + background vol=0.15&#10;amix=inputs=2:duration=first&#10;Output: mixed_audio.mp3">
+        <incoming>m5_flow_3</incoming>
+        <outgoing>m5_flow_4</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m5_build_srt" name="Passo 5.4: Gerar subtitles.srt&#10;de timestamps.json&#10;(1 entrada por palavra)">
+        <incoming>m5_flow_4</incoming>
+        <outgoing>m5_flow_5</outgoing>
+      </serviceTask>
+
+      <serviceTask id="m5_render" name="Passo 5.5: Renderizacao final&#10;ffmpeg video_base.mp4 + mixed_audio.mp3&#10;+ subtitles.srt (word-by-word)&#10;Codec: libx264 CRF23 + AAC 192k&#10;Output: final_output.mp4">
+        <incoming>m5_flow_5</incoming>
+        <outgoing>m5_flow_end</outgoing>
+      </serviceTask>
+
+      <endEvent id="m5_end">
+        <incoming>m5_flow_end</incoming>
+      </endEvent>
+
+      <sequenceFlow id="m5_flow_1" sourceRef="m5_start" targetRef="m5_trim_clips"/>
+      <sequenceFlow id="m5_flow_2" sourceRef="m5_trim_clips" targetRef="m5_concat"/>
+      <sequenceFlow id="m5_flow_3" sourceRef="m5_concat" targetRef="m5_mix_audio"/>
+      <sequenceFlow id="m5_flow_4" sourceRef="m5_mix_audio" targetRef="m5_build_srt"/>
+      <sequenceFlow id="m5_flow_5" sourceRef="m5_build_srt" targetRef="m5_render"/>
+      <sequenceFlow id="m5_flow_end" sourceRef="m5_render" targetRef="m5_end"/>
+    </subProcess>
+
+    <!-- TRATAMENTO DE ERROS CENTRALIZADO -->
+    <serviceTask id="task_notify_error" name="Registrar erro no log&#10;Notificar operador">
+      <incoming>flow_m1_fail</incoming>
+      <incoming>flow_m2_fail</incoming>
+      <incoming>flow_m3_fail</incoming>
+      <incoming>flow_m4_fail</incoming>
+      <outgoing>flow_error_to_end</outgoing>
+    </serviceTask>
+
+    <!-- SEQUENCE FLOWS DO PROCESSO PRINCIPAL -->
+    <sequenceFlow id="flow_start_to_m1" sourceRef="evt_start" targetRef="sub_m1"/>
+    <sequenceFlow id="flow_m1_to_m1_gw" sourceRef="sub_m1" targetRef="gw_m1_check"/>
+    <sequenceFlow id="flow_m1_ok" name="OK" sourceRef="gw_m1_check" targetRef="sub_m2"/>
+    <sequenceFlow id="flow_m1_fail" name="Erro" sourceRef="gw_m1_check" targetRef="task_notify_error"/>
+
+    <sequenceFlow id="flow_m2_to_m2_gw" sourceRef="sub_m2" targetRef="gw_m2_check"/>
+    <sequenceFlow id="flow_m2_ok" name="OK" sourceRef="gw_m2_check" targetRef="sub_m3"/>
+    <sequenceFlow id="flow_m2_fail" name="Erro" sourceRef="gw_m2_check" targetRef="task_notify_error"/>
+
+    <sequenceFlow id="flow_m3_to_m3_gw" sourceRef="sub_m3" targetRef="gw_m3_check"/>
+    <sequenceFlow id="flow_m3_ok" name="OK" sourceRef="gw_m3_check" targetRef="sub_m4"/>
+    <sequenceFlow id="flow_m3_fail" name="Erro" sourceRef="gw_m3_check" targetRef="task_notify_error"/>
+
+    <sequenceFlow id="flow_m4_to_m4_gw" sourceRef="sub_m4" targetRef="gw_m4_check"/>
+    <sequenceFlow id="flow_m4_ok" name="OK" sourceRef="gw_m4_check" targetRef="sub_m5"/>
+    <sequenceFlow id="flow_m4_fail" name="Erro" sourceRef="gw_m4_check" targetRef="task_notify_error"/>
+
+    <sequenceFlow id="flow_m5_to_end" sourceRef="sub_m5" targetRef="evt_end"/>
+    <sequenceFlow id="flow_error_to_end" sourceRef="task_notify_error" targetRef="evt_error_end"/>
+
+  </process>
+
+  <!-- ERRO GLOBAL -->
+  <error id="err_pipeline_failed" name="PIPELINE_FAILED" errorCode="PIPELINE_FAILED"/>
+
+  <!-- ============================================================
+       BPMN DIAGRAM (Coordenadas de Layout)
+       ============================================================ -->
+  <bpmndi:BPMNDiagram id="diagram_main">
+    <bpmndi:BPMNPlane id="plane_main" bpmnElement="proc_dark_video">
+
+      <!-- Start/End -->
+      <bpmndi:BPMNShape id="shape_evt_start" bpmnElement="evt_start">
+        <dc:Bounds x="80" y="280" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="60" y="322" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_evt_end" bpmnElement="evt_end">
+        <dc:Bounds x="1820" y="280" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1800" y="322" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_evt_error_end" bpmnElement="evt_error_end">
+        <dc:Bounds x="1820" y="520" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1800" y="562" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Modulo 1 -->
+      <bpmndi:BPMNShape id="shape_sub_m1" bpmnElement="sub_m1" isExpanded="false">
+        <dc:Bounds x="180" y="240" width="160" height="100"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="185" y="248" width="150" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_m1" bpmnElement="gw_m1_check" isMarkerVisible="true">
+        <dc:Bounds x="400" y="272" width="40" height="40"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="385" y="318" width="70" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Modulo 2 -->
+      <bpmndi:BPMNShape id="shape_sub_m2" bpmnElement="sub_m2" isExpanded="false">
+        <dc:Bounds x="500" y="240" width="160" height="100"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="505" y="248" width="150" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_m2" bpmnElement="gw_m2_check" isMarkerVisible="true">
+        <dc:Bounds x="720" y="272" width="40" height="40"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="705" y="318" width="70" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Modulo 3 -->
+      <bpmndi:BPMNShape id="shape_sub_m3" bpmnElement="sub_m3" isExpanded="false">
+        <dc:Bounds x="820" y="240" width="160" height="100"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="825" y="248" width="150" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_m3" bpmnElement="gw_m3_check" isMarkerVisible="true">
+        <dc:Bounds x="1040" y="272" width="40" height="40"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1025" y="318" width="70" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Modulo 4 -->
+      <bpmndi:BPMNShape id="shape_sub_m4" bpmnElement="sub_m4" isExpanded="false">
+        <dc:Bounds x="1140" y="240" width="160" height="100"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1145" y="248" width="150" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_m4" bpmnElement="gw_m4_check" isMarkerVisible="true">
+        <dc:Bounds x="1360" y="272" width="40" height="40"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1345" y="318" width="70" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Modulo 5 -->
+      <bpmndi:BPMNShape id="shape_sub_m5" bpmnElement="sub_m5" isExpanded="false">
+        <dc:Bounds x="1460" y="240" width="160" height="100"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1465" y="248" width="150" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Error handler -->
+      <bpmndi:BPMNShape id="shape_notify_error" bpmnElement="task_notify_error">
+        <dc:Bounds x="1700" y="498" width="120" height="60"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1705" y="502" width="110" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Edges -->
+      <bpmndi:BPMNEdge id="edge_start_m1" bpmnElement="flow_start_to_m1">
+        <di:waypoint x="116" y="298"/><di:waypoint x="180" y="298"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m1_gw" bpmnElement="flow_m1_to_m1_gw">
+        <di:waypoint x="340" y="298"/><di:waypoint x="400" y="292"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m1_ok" bpmnElement="flow_m1_ok">
+        <di:waypoint x="440" y="292"/><di:waypoint x="500" y="298"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m1_fail" bpmnElement="flow_m1_fail">
+        <di:waypoint x="420" y="312"/><di:waypoint x="420" y="528"/><di:waypoint x="1700" y="528"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m2_gw" bpmnElement="flow_m2_to_m2_gw">
+        <di:waypoint x="660" y="298"/><di:waypoint x="720" y="292"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m2_ok" bpmnElement="flow_m2_ok">
+        <di:waypoint x="760" y="292"/><di:waypoint x="820" y="298"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m2_fail" bpmnElement="flow_m2_fail">
+        <di:waypoint x="740" y="312"/><di:waypoint x="740" y="528"/><di:waypoint x="1700" y="528"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m3_gw" bpmnElement="flow_m3_to_m3_gw">
+        <di:waypoint x="980" y="298"/><di:waypoint x="1040" y="292"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m3_ok" bpmnElement="flow_m3_ok">
+        <di:waypoint x="1080" y="292"/><di:waypoint x="1140" y="298"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m3_fail" bpmnElement="flow_m3_fail">
+        <di:waypoint x="1060" y="312"/><di:waypoint x="1060" y="528"/><di:waypoint x="1700" y="528"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m4_gw" bpmnElement="flow_m4_to_m4_gw">
+        <di:waypoint x="1300" y="298"/><di:waypoint x="1360" y="292"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m4_ok" bpmnElement="flow_m4_ok">
+        <di:waypoint x="1400" y="292"/><di:waypoint x="1460" y="298"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m4_fail" bpmnElement="flow_m4_fail">
+        <di:waypoint x="1380" y="312"/><di:waypoint x="1380" y="528"/><di:waypoint x="1700" y="528"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_m5_end" bpmnElement="flow_m5_to_end">
+        <di:waypoint x="1620" y="298"/><di:waypoint x="1820" y="298"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_error_end" bpmnElement="flow_error_to_end">
+        <di:waypoint x="1820" y="528"/><di:waypoint x="1856" y="528"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>

@@ -1,0 +1,871 @@
+--- CONTENT OF Intensivo_ Marketing com Inteligência Artificial _ Material Complementar 01.pdf ---
+ 
+     AULA  1
+  MATERIAL  COMPLEMENTAR    
+Criação  de  Conteúdo  com  IA  Método  Staage  para  turbinar  
+sua
+ 
+audiência
+            
+ 
+
+   
+6  ETAPAS  PARA  CRIAR  UMA  AUDIÊNCIA  
+QUALIFICADA
+ 
+DO
+ 
+ZERO
+ 
+COM
+ 
+IA
+ 
+  
+ETAPA  1:  Defina  seu  nicho   Seu  nicho  não  é  o  que  você  vende.  É  a  DOR  ou  o  UNIVERSO  de  interesse  do  seu  
+cliente.
+  Checklist:   ✅  Pense  no  tema  que  seu  cliente  já  consome  (ex:  saúde,  negócios,  produtividade)  ✅  Evite  focar  no  seu  produto  (ex:  “remédios”)  e  foque  na  pauta  do  cliente  (ex:  
+“como
+ 
+viver
+ 
+mais
+ 
+e
+ 
+melhor”)
+ ✅  Encontre  o  ponto  de  interseção  entre  seu  produto  e  o  conteúdo  que  atrai   Exemplo:  Segmento:  manutenção  industrial  →  Nicho  de  conteúdo:  produtividade  e  eficiência  
+operacional.
+   
+ETAPA  2:  Pesquisa  de  conteúdo  viral   Objetivo:  Encontrar  o  que  já  viralizou  no  seu  nicho,  para  modelar.   [Prompt  para  o  ChatGPT  -  Deep  Research/Busca  Avançada]   Me  dê  os  10  vídeos  mais  virais  sobre  MARKETING  e  NEGÓCIOS  dos  
+últimos
+ 
+três
+ 
+meses
+ 
+no
+ 
+YouTube,
+ 
+além
+ 
+de
+ 
+notícias
+ 
+que
+ 
+pegaram
+ 
+muita
+ 
+atração.
+ 
+Eu
+ 
+vou
+ 
+usar
+ 
+eles
+ 
+de
+ 
+base
+ 
+para
+ 
+criar
+ 
+conteúdos.
+ 
+Vídeo
+ 
+viral
+ 
+é
+ 
+igual
+ 
+a
+ 
+um
+ 
+vídeo
+ 
+que
+ 
+teve
+ 
+mais
+ 
+de
+ 
+500.000
+ 
+visualizações.
+ 
+Pesquise
+ 
+Índia,
+ 
+China,
+ 
+Estados
+ 
+Unidos
+ 
+e
+ 
+Europa.
+ 
+Só
+ 
+não
+ 
+quero
+ 
+vídeos
+ 
+e
+ 
+notícias
+ 
+brasileiras.
+ 
+Quero
+ 
+pelo
+ 
+menos
+ 
+10
+ 
+resultados.
+ 
+Também
+ 
+quero
+ 
+sugestões
+ 
+de
+ 
+canais
+ 
+dos
+ 
+países
+ 
+que
+ 
+falem
+ 
+do
+ 
+assunto.
+  Ferramentas:   ●  Pesquisa  manual  no  YouTube:  palavra-chave  +  filtro  por  visualizações  
+(ex:
+ 
+marketing
+ 
+-
+ 
+filtrar
+ 
+vídeos
+ 
+com
+ 
+mais
+ 
+de
+ 
+500
+ 
+mil
+ 
+views)
+ ●  TikTok:  busca  por  termos  do  seu  nicho  ●  GPT  de  pesquisa  com  agente  Deep  Research  [LINK]    
+ 
+ 
+
+ 
+ ETAPA  3:  Transcrição  com  IA   Objetivo:  Transformar  vídeo  viral  em  texto  para  análise  e  adaptação.   Método  1  –  Vídeo  com  legenda:   Use  extensão  EIGHTIFY  no  seu  navegador  para  copiar  a  legenda  direto  do  vídeo.  Link:  https://eightify.app/   Método  2  –  Vídeo  sem  legenda:   Baixe  o  vídeo:  http://clipto.com/pt/media-downloader/youtube-downloader   Transcrição  com  o  Cockatoo:  arraste  o  arquivo  e  ele  traduz  automaticamente.  Link:  https://app.cockatoo.com/    
+ETAPA  4:  Adaptação  para  o  seu  nicho   Objetivo:  Criar  um  roteiro  novo,  autoral,  mas  com  a  estrutura  de  um  vídeo  que  já  
+viralizou.
+  [Prompt  para  o  Claude]   Transforme  o  roteiro  abaixo  em  um  roteiro  viral  de  até  2  minutos  para  ser  
+lido
+ 
+num
+ 
+teleprompter.
+ 
+Adapte
+ 
+para
+ 
+o
+ 
+nicho
+ 
+de
+ 
+[SEU
+ 
+NICHO].
+ 
+Me
+ 
+dê
+ 
+apenas
+ 
+o
+ 
+texto
+ 
+sem
+ 
+notas
+ 
+de
+ 
+editor.
+  Dicas:   ➔  Use  Claude  para  reescrita  criativa  ➔  Repita  com  10,  20,  30  vídeos  ➔  Teste  diferentes  ganchos,  estruturas  e  tons    
+ETAPA  5:  Produção  e  Teste
+  Objetivo:  Tirar  os  roteiros  do  papel  e  colocá-los  em  teste  real,  mesmo  que  sem  
+aparecer.
+  Alternativas  se  não  quiser  aparecer:   ●  Avatar  IA  com  voz  e  imagem  gerada  ●  Narração  +  slides,  animações  ou  lettering  ●  Vídeo  de  tela  com  voz  ●  Gravar  apenas  suas  mãos  ou  produtos  com  voz  off   
+ 
+
+ Importante:  Você  vai  descobrir  o  que  funciona  só  depois  de  publicar.  Comece  
+simples
+ 
+(feito
+ 
+é
+ 
+melhor
+ 
+que
+ 
+perfeito).
+   
+ETAPA  6:  Análise  e  Escala
+  Objetivo:  Identificar  padrões  entre  os  conteúdos  que  melhor  performaram  e  criar  
+sua
+ 
+própria
+ 
+"fórmula
+ 
+viral".
+  Exemplo  real  (Fernando  Miranda):   ●  Dos  600  vídeos  publicados  →  separou  os  20  mais  virais  ●  Analisou  com  IA  (Claude)  os  padrões  mais  comuns   [Prompt  para  o  Claude]   Analise  o  que  faz  esses  roteiros  serem  virais.  Qual  a  estrutura  comum?  
+Crie
+ 
+uma
+ 
+estrutura
+ 
+replicável.
+  Estrutura  descoberta:   ●  Gancho  com  dado  surpreendente  ●  Tom  insider  ●  Duas  reviravoltas  ●  Plot  twist  inesperado  ●  Lição  de  moral  no  final   Resultado:  Criação  de  agente  personalizado  que  replica  a  estrutura  dos  vídeos  que  
+já
+ 
+funcionaram.
+   
+CHECKLIST  DO  MÉTODO  COMPLETO  
+  ✅  Defina  seu  nicho  –  pense  no  problema  do  cliente  ✅  Pesquise  virais  com  IA  –  economize  tempo,  busque  o  que  já  funcionou  ✅  Transcreva  –  transforme  vídeo  em  texto  ✅  Adapte  para  seu  público  –  use  a  estrutura  e  faça  com  a  sua  voz  ✅  Produza  e  teste  –  feito  é  melhor  que  perfeito  ✅  Analise  e  escale  –  descubra  o  que  funciona,  automatize  o  processo        
+  
+ 
+
+  
+CHECKLIST  DE  FERRAMENTAS  
+USADAS
+ 
+NA
+ 
+AULA
+ 
+1
+  Clique  no  nome  da  ferramenta  para  ser  direcionado:    ●  ChatGPT:  pesquisa  e  análise  de  conteúdo  ●  Claude:  escrita  de  roteiros  ●  Eightfy:  para  copiar  a  legenda  de  um  vídeo  ●  Clipto:  para  baixar  um  vídeo  do  Youtube  ●  Cockatoo:  para  transcrever  um  vídeo  sem  legenda  ●  Google  Docs:  para  organizar  arquivos    
+BÔNUS  ESPECIAL
+  Assistente  Pesquisador  da  Staage:  o  Pesquisador  Staage  é  um  assistente  desenvolvido  no  ChatGPT  para  apoiar  suas  pesquisas,  aprofundar  conceitos  e  
+agilizar
+ 
+sua
+ 
+rotina
+ 
+de
+ 
+estudos.
+ 
+Ele  é  simples  de  usar  e  pode  ser  um  grande  aliado  na  hora  de  buscar  referências,  
+tirar
+ 
+dúvidas
+ 
+ou
+ 
+explorar
+ 
+ideias
+ 
+com
+ 
+mais
+ 
+profundidade.
+ 
+ 
+ 
+
+
+--- CONTENT OF Intensivo_ Marketing com Inteligência Artificial _ Material Complementar 02.pdf ---
+ 
+     AULA  2
+  MATERIAL  COMPLEMENTAR   
+ 
+Criando
+ 
+anúncios
+,
+ 
+imagens
+ 
+e
+ 
+landing
+ 
+pages
+ 
+com
+ 
+IA
+            
+ 
+
+    
+Caso  de  uso  1:  CRIANDO  COPIES  
+PERSUASIVAS
+   
+ETAPA  1:  Estrutura  científica  do  anúncio   Descubra  como  criar  anúncios  que  convertem  com  IA,  seguindo  um  modelo  testado.   Modelo  Hook  +  Copy  Framework:   ➔  Hook :  frase  de  impacto  para  parar  o  scroll  ➔  Promessa :  benefício  claro  e  mensurável  ➔  Prova :  credibilidade  ou  prova  social  ➔  CTA :  chamada  irresistível  para  ação    
+ETAPA  2:  Geração  de  múltiplas  variações  com  IA   [Prompt  para  Claude  ou  GPT]  Você  é  um  copywriter  especialista  em  anúncios  para  [NICHO].   Contexto:  [DESCREVER  PRODUTO/SERVIÇO]  Público:  [AVATAR  DETALHADO]  Objetivo:  [AÇÃO  ESPECÍFICA]   Crie  5  hooks  diferentes  seguindo  estas  fórmulas:  -  Hook  de  curiosidade  -  Hook  de  benefício    -  Hook  de  dor  -  Hook  de  urgência  -  Hook  de  contraste   Para  cada  hook,  desenvolva:  -  Promessa  específica  e  mensurável  -  Uma  linha  de  prova  social  ou  credibilidade  -  CTA  que  conecta  com  a  promessa   Formato:  até  150  caracteres  total.       
+ 
+
+ 
+ETAPA  3:  Adaptar  por  estágio  do  funil   [Prompt  para  Claude  ou  GPT]  Pegue  o  hook:  "[HOOK  ESCOLHIDO]"   Crie  uma  versão  para  cada  estágio:   TOPO  DE  FUNIL:   Tom  educacional,  conscientização  do  problema   MEIO  DE  FUNIL:   Trazer  comparativos,  mostrar  diferencial   FUNDO  DE  FUNIL:   Urgência,  conversão,  CTA  direto   Mantenha  a  essência  do  hook  original  em  cada  versão    
+ETAPA  4:  Analisar  e  transformar  em  template   Objetivo :  Aprender  com  o  que  já  funcionou  e  transformar  em  uma  fórmula  
+reutilizável.
+  [Prompt  para  Claude  ou  GPT]  Analise  este  copy  que  teve  boa  performance:   [COLAR  O  COPY]   Extraia:  1.  A  estrutura/fórmula  exata  2.  As  palavras-chave  emocionais    3.  O  gatilho  mental  usado  4.  O  padrão  que  gerou  resultado   Transforme  em  um  template  reutilizável  para  outros  produtos  mantendo  a  
+mesma
+ 
+estrutura
+ 
+vencedora.
+  Comece  a  montar  sua  biblioteca  de  fórmulas  de  copy  personalizadas  para  sua  
+audiência.
+      
+ 
+ 
+
+ 
+ Caso  de  uso  2:  GERANDO  IMAGENS  COM  
+IA
+  ETAPA  1:  Entenda  o  que  você  quer  mostrar
+  Antes  de  gerar  a  imagem,  defina  com  clareza:   ➔  O  que  você  quer  mostrar?  Seja  claro:  é  o  produto,  é  uma  pessoa  usando,  é  
+o
+ 
+resultado?
+ ➔  Qual  o  ambiente:  onde  está  acontecendo  a  cena?  Escritório,  loja,  casa?  ➔  Qual  a  emoção:  confiança,  felicidade,  foco,  sucesso…  o  sentimento  que  
+você
+ 
+escolhe
+ 
+passar
+ 
+muda
+ 
+o
+ 
+resultado
+ 
+da
+ 
+imagem.
+ ➔  Cores  e  estilo :  coloque  as  cores  da  sua  marca  e  peça:  “estilo  de  anúncio  
+publicitário”,
+ 
+“estilo
+ 
+de
+ 
+campanha
+ 
+profissional”.
+   
+ETAPA  2:  Escreva  um  prompt  específico
+  Exemplo  fraco:  Mulher  usando  computador   Exemplo  bom:  Mulher  de  negócios  confiante,  trabalhando  em  um  laptop,  escritório  
+moderno,
+ 
+tons
+ 
+de
+ 
+azul
+ 
+e
+ 
+branco,
+ 
+estilo
+ 
+anúncio
+ 
+publicitário.
+  Dica:  Peça  imagens  que  conversem  com  a  sua  campanha.  Dê  orientações  de  estilo,  
+como:
+  ●  estilo  publicitário  ●  estilo  clean  ●  estilo  campanha  profissional  ●  foto  realista  ●  ambiente  iluminado    
+ETAPA  3:  Gere  variações  estratégicas
+  Teste  pelo  menos  3  versões  por  tema  para  ter  opções  e  ver  qual  performa  melhor:   [EXEMPLOS  DE  PROMPTS]   Pessoa  como  foco:  Pessoa  feliz  vendo  resultados  no  computador,  ambiente  iluminado,  estilo  
+publicitário.
+ 
+ 
+
+  Resultado  como  foco:  Gráficos  de  crescimento  na  tela  do  computador,  visual  limpo,  ar  de  
+sucesso.
+  Ambiente  como  foco:  Home  office  organizado,  livros,  materiais  de  estudo  espalhados,  luz  
+natural.
+   
+ETAPA  4:  Adapte  para  diferentes  formatos
+  Peça  o  formato  ou  diga  para  qual  plataforma  você  vai  precisar  a  imagem  –  se  é  
+reels,
+ 
+feed,
+ 
+thumb
+ 
+etc
+ 
+–
+ 
+que
+ 
+a
+ 
+IA
+ 
+já
+ 
+gera
+ 
+no
+ 
+tamanho
+ 
+adequado.
+  [EXEMPLO  DE  PROMPT]  Transforme  esta  imagem  para  formato  de  Stories  do  Instagram,  mantendo  
+o
+ 
+mesmo
+ 
+estilo.
+   
+ETAPA  5:  Use  referências  para  melhorar   Se  tiver  referências  de  imagens,  cores,  estilos,  não  deixe  de  mandar  para  ajudar  na  
+composição.
+ 
+Exemplo
+ 
+de
+ 
+prompt
+ 
+com
+ 
+referência
+ 
+visual:
+  “Coloque  este  vestido  (imagem  anexa)  em  uma  modelo  parecida  com  a  
+Gisele
+ 
+Bundchen
+ 
+caminhando
+ 
+nas
+ 
+ruas
+ 
+de
+ 
+NYC.”
+  PROMPT  BÔNUS   Segue  um  exemplo  de  prompt  para  gerar  imagens  de  thumb  para  vídeos,  
+exatamente
+ 
+como
+ 
+a
+ 
+gente
+ 
+faz
+ 
+aqui
+ 
+na
+ 
+Staage:
+  *Objetivo*  Crie  uma  thumbnail  altamente  clicável  que  comunique,  em  poucos  
+segundos,
+ 
+o
+ 
+tema
+ 
+e
+ 
+a
+ 
+promessa
+ 
+do
+ 
+vídeo.
+  *Dados ‑ chave*   *  *Título/gancho  curto  (máx.  3  linhas):*  [TEXTO  PRINCIPAL]  *  *Elementos  visuais  obrigatórios:*     *  [ELEMENTO  1]  (ex.:  logotipo,  produto,  personagem)    *  [ELEMENTO  2]  *  *Paleta  de  cores  preferida:*  [CORES  MARCA]  *  *Quantidade  de  pessoas/silhuetas:*  [NÚMERO]  *  *Senso  de  urgência/mistério?*  [SIM/NÃO]  *  *Formato  final:*  [RESOLUÇÃO]  (ex.:  1920×1080)  
+ 
+
+  *Instruções  adicionais*   1.  Texto  grande,  legível  em  mobile,  com  contraste  forte.  2.  Fundo  e  glow  que  direcionem  o  olhar  para  o  texto  e  o(s)  elemento(s)  
+principais.
+ 3.  Manter  a  hierarquia  visual:  texto → elemento(s) → detalhes.  4.  Evitar  poluição  visual;  usar  setas  ou  círculos  *apenas  se  ajudarem*  a  
+guiar
+ 
+a
+ 
+atenção.
+ 5.  Exportar  como  PNG  de  alta  qualidade.   *Exemplo  de  preenchimento  rápido*   *  [TEXTO  PRINCIPAL]:  MAIOR  IMPÉRIO  OCULTO  DO  VAREJO  *  [ELEMENTO  1]:  Fachada  Decathlon  *  [ELEMENTO  2]:  Fachada  Leroy  Merlin  *  [CORES  MARCA]:  Laranja,  preto,  branco  *  [NÚMERO]:  12  silhuetas  *  [SIM/NÃO]:  Sim  *  [RESOLUÇÃO]:  1920×1080   >  *Use  o  modelo  acima  para  gerar  o  prompt  completo  e  entregue  a  
+thumbnail
+ 
+pronta
+ 
+para
+ 
+publicação.*
+  Ferramentas  recomendadas:   ●  MidJourney  ●  Leonardo  AI  ●  Sora  (ChatGPT)  ●  DALL-E  (OpenAI)   Checklist:   ✅  Seja  específico  no  prompt  ✅  Teste  pelo  menos  3  variações  ✅  Peça  em  formatos  diferentes  ✅  Use  referências  visuais  ✅  Sempre  revise  antes  de  publicar     
+Caso  de  uso  3:  CRIANDO  LANDING  
+PAGES
+ 
+COM
+ 
+O
+ 
+V0
+  Hoje,  o  V0  permite  que  qualquer  pessoa  —  mesmo  sem  saber  programar  ou  mexer  
+em
+ 
+design
+ 
+—
+ 
+construa
+ 
+uma
+ 
+landing
+ 
+page
+ 
+bonita,
+ 
+responsiva
+ 
+e
+ 
+funcional.
+ 
+  
+ 
+
+ Mas  o  segredo  não  está  só  na  ferramenta.  O  que  separa  uma  página  genérica  de  
+uma
+ 
+página
+ 
+que
+ 
+realmente
+ 
+converte
+ 
+é
+ 
+a
+ 
+qualidade
+ 
+da
+ 
+copy
+ 
+e
+ 
+da
+ 
+referência
+ 
+visual
+ 
+que
+ 
+você
+ 
+fornece
+ 
+para
+ 
+a
+ 
+IA.
+   
+ETAPA  1:  Comece  com  a  copy  certa   Erro  comum:  pedir  “uma  landing  page  para  estética  automotiva”  e  esperar  algo  bom.  O  melhor  é  usar  um  prompt  estratégico  que  guie  a  IA  com  clareza.   [PROMPT  PARA  CLAUDE  OU  GPT]   Você  é  um  consultor  especialista  em  copy  de  alta  conversão  e  vai  me  
+guiar
+ 
+através
+ 
+de
+ 
+um
+ 
+processo
+ 
+estruturado
+ 
+para
+ 
+criar
+ 
+uma
+ 
+landing
+ 
+page
+ 
+que
+ 
+converte.
+ 
+Quero
+ 
+que
+ 
+você
+ 
+me
+ 
+ajude
+ 
+com
+ 
+essas
+ 
+5
+ 
+etapas
+ 
+fundamentais:
+  Descobrir  a  dor  real  que  meu  produto  resolve  Criar  uma  apresentação  única  da  solução  Definir  os  benefícios  transformacionais  Estruturar  prova  social  convincente  Montar  oferta  e  urgência  real   Faça  uma  pergunta  de  cada  vez,  seja  específico  e  direto.  Me  ajude  a  
+aprofundar
+ 
+cada
+ 
+resposta,
+ 
+só
+ 
+vá
+ 
+para
+ 
+próxima
+ 
+etapa
+ 
+quando
+ 
+estiver
+ 
+completa
+ 
+e
+ 
+desafie
+ 
+minhas
+ 
+respostas
+ 
+se
+ 
+estiverem
+ 
+genéricas.
+  MEU  CONTEXTO:  Produto/serviço:  [descreva  aqui]  Avatar/cliente:  [perfil  do  cliente]  Ticket  médio:  [valor]   Comece  com  a  primeira  etapa  me  fazendo  uma  pergunta  sobre  a  dor  real  
+que
+ 
+meu
+ 
+produto
+ 
+resolve.
+   
+ETAPA  2:  Estrutura  ideal  de  página    [PROMPT  PARA  CLAUDE  OU  GPT]   Agora  que  você  já  descobriu  os  5  principais  pontos  do  nosso  produto  e  
+cliente,
+ 
+vamos
+ 
+criar
+ 
+uma
+ 
+landing
+ 
+page
+ 
+completa
+ 
+com
+ 
+essas
+ 
+especificações:
+  ESTRUTURA  OBRIGATÓRIA:  Headline  impactante  Pelo  menos  3  dores  específicas  Apresentação  da  solução  com  diferencial  5  benefícios  transformacionais  
+ 
+
+ 3-5  depoimentos  (ou  criar  exemplos)  Oferta  com  escassez  Múltiplos  CTAs  Garantia  que  reduz  risco  FAQ   ASPECTOS  VISUAIS:  Design/marca:  [suas  cores  e  estilo]  Tom:  [profissional/descontraído/etc]   OUTPUT  FINAL:  Quero  cada  seção  assim:  SEÇÃO  X  -  [Nome  da  seção]  
+Objetivo:
+ 
+[para
+ 
+que
+ 
+serve
+ 
+esta
+ 
+seção]
+ 
+Copy
+ 
+completa:
+ 
+[texto
+ 
+pronto
+ 
+para
+ 
+usar]
+   
+ETAPA  3:  Referência  visual  é  tudo   Nunca  peça  “crie  do  zero”.  O  melhor  resultado  vem  com  referência.   Fontes  para  referência:   ●  Landingfolio:  ●  Pinterest:  ●  Prints  de  páginas  que  você  admira   [Prompt  para  V0  com  referência  visual]  Baseie-se  nesta  página  anexada  para  criar  minha  landing  page.    Mantenha  a  estrutura  visual,  mas  adapte  para  minha  copy  e  minha  marca.    
+ETAPA  4:  Refine  com  feedbacks   Se  a  primeira  versão  ficou  do  jeito  que  você  queria,  perfeito.  Mas  se  quiser  
+melhorar,
+ 
+pode
+ 
+—
+ 
+e
+ 
+deve
+ 
+—
+ 
+dar
+ 
+feedback
+ 
+direto
+ 
+para
+ 
+a
+ 
+IA.
+  Dê  comandos  como:  ●  A  seção  principal  está  sem  vida,  melhore  o  texto.  ●  Adicione  imagens  reais  do  produto  onde  faz  sentido.  ●  Quero  um  design  mais  moderno  e  criativo,  mas  sem  exagero.   Quanto  mais  objetivo  você  for  sobre  o  que  não  funcionou,  mais  rápido  ela  acerta.    
+ETAPA  5:  Publicação  e  captação
+  Clique  em  “ Deploy ”  no  V0  para  publicar.   
+ 
+
+ Use  “ Custom  Domains ”  para  redirecionar  para  seu  site.   Importante :  crie  um  formulário  de  captura  de  lead.  Se  ainda  não  souber  como  fazer,  
+direcione
+ 
+o
+ 
+botão
+ 
+para:
+  ●  WhatsApp  ●  Typeform  ●  Google  Forms    
+ETAPA  6:  Mobile  first  e  backup
+  Mais  de  70%  dos  acessos  vêm  do  celular,  então  não  esqueça  de  revisar  a  versão  
+mobile
+ 
+antes
+ 
+de
+ 
+publicar.
+  Dicas  finais:  ➔  Salve  sempre  uma  cópia  da  versão  original.  ➔  Teste  novas  versões  com  segurança   
+ 
+CHECKLIST  DE  FERRAMENTAS  
+USADAS
+ 
+NA
+ 
+AULA
+ 
+2
+  Clique  no  nome  da  ferramenta  para  ser  direcionado:    ●  ChatGPT:  criação  e  análise  de  copy  ●  Claude:  criação  e  análise  de  copy  ●  MidJourney ou  Sora  (ChatGPT):  geração  de  imagem  para  anúncios  ●  V0.dev (Vercel):  criação  de  landing  pages  com  IA  ●  Google  Docs:  para  organizar  biblioteca  de  fórmulas  ●  Leonardo  AI:  geração  de  imagem  ●  DALL-E (OpenAI):  geração  de  imagem  ●  Landingfolio:  pesquisa  de  referências  visuais  ●  Pinterest:  pesquisa  de  referências  visuais    
+BÔNUS  ESPECIAL
+  Assistente  Adaptador  de  Roteiros:  Desenvolvido  no  ChatGPT,  ele  foi  criado  para  transformar  ideias,  textos  ou  roteiros  em  versões  prontas  para  diferentes  formatos  
+de
+ 
+conteúdo
+ 
+(Reels,
+ 
+YouTube,
+ 
+Carrossel,
+ 
+Podcast,
+ 
+Artigo,
+ 
+Aula
+ 
+etc.),
+ 
+sempre
+ 
+otimizando
+ 
+para
+ 
+o
+ 
+público,
+ 
+o
+ 
+canal
+ 
+e
+ 
+o
+ 
+objetivo.
+ 
+ 
+
+

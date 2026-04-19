@@ -1,0 +1,63 @@
+# Plano de Implementação Master: Backend Local (Dark Video Pipeline)
+
+Conforme estabelecido pela documentação de `AGENT_INSTRUCTIONS` e `Claude - Viabilidade do contexto`, a arquitetura do projeto foi pivotada da nuvem (Make/n8n) para uma super automação em **Vibe Coding**. 
+
+Eu (Agente Antigravity) irei programar um Servidor Python local usando Flask na sua máquina. O pipeline será quebrado em 5 módulos e expostos como APIs.
+
+## 1. User Review Required
+
+> [!IMPORTANT]
+> **As Ferramentas Locais (Ambiente)**
+> Este pipeline exige que o **FFmpeg** esteja instalado no seu sistema macOS (disponível no seu terminal) e configurado no PATH. Também instalarei libs pesadas em Python (como `openai-whisper` e dependências ONNX). Você concorda que eu gerencie essas dependências no terminal durante a compilação?
+
+> [!CAUTION]
+> **Módulo 5 (Montagem)**
+> Para o MVP, adotaremos a abordagem via **FFmpeg puro com legendas simples via `.srt` (Opção A)** para o render do vídeo, visando evitar gargalos monstruosos de tempo usando ferramentas Frame-a-frame (Opção B - OpenCV) logo no pontapé inicial. Esse é o caminho mais seguro para vermos o robô entregar o primeiro MP4 com vida.
+
+---
+
+## 2. Proposed Changes
+
+### Estrutura Base e Orquestrador
+Criação do ambiente virtual e estrutura do projeto Flask que amarra toda a pipeline.
+
+#### [NEW] [server.py](file:///Users/apple/Documents/MY%20MIND/Documents/4%20-%20Arquivados%20/Antigravity/cria%C3%A7ao%20de%20conteudo/dark-video-pipeline/server.py)
+Backend Flask expondo as rotas `/api/module1...` até `module5` e orquestrando o fluxo.
+
+#### [NEW] [requirements.txt](file:///Users/apple/Documents/MY%20MIND/Documents/4%20-%20Arquivados%20/Antigravity/cria%C3%A7ao%20de%20conteudo/dark-video-pipeline/requirements.txt)
+Pacotes (flask, requests, python-dotenv, openai-whisper, soundfile).
+
+### Os 5 Motores (Módulos Python)
+
+#### [NEW] [modules/script_generator.py](file:///Users/apple/Documents/MY%20MIND/Documents/4%20-%20Arquivados%20/Antigravity/cria%C3%A7ao%20de%20conteudo/dark-video-pipeline/modules/script_generator.py)
+**Módulo 1:** Rotina que faz a POST na API do OpenRouter e puxa o script Hook + Copy (Foco em negócios).
+
+#### [NEW] [modules/tts.py](file:///Users/apple/Documents/MY%20MIND/Documents/4%20-%20Arquivados%20/Antigravity/cria%C3%A7ao%20de%20conteudo/dark-video-pipeline/modules/tts.py)
+**Módulo 2:** Integração com Kokoro ONNX para síntese de voz rodando direto no terminal localmente.
+
+#### [NEW] [modules/stt.py](file:///Users/apple/Documents/MY%20MIND/Documents/4%20-%20Arquivados%20/Antigravity/cria%C3%A7ao%20de%20conteudo/dark-video-pipeline/modules/stt.py)
+**Módulo 3:** Extração Word-by-Word local rodando o Whisper (base).
+
+#### [NEW] [modules/media_collector.py](file:///Users/apple/Documents/MY%20MIND/Documents/4%20-%20Arquivados%20/Antigravity/cria%C3%A7ao%20de%20conteudo/dark-video-pipeline/modules/media_collector.py)
+**Módulo 4:** Raspagem cega na API Pexels e Pixabay lidando com timeouts, arquivos ilegíveis e fallbacks dinâmicos.
+
+#### [NEW] [modules/video_assembler.py](file:///Users/apple/Documents/MY%20MIND/Documents/4%20-%20Arquivados%20/Antigravity/cria%C3%A7ao%20de%20conteudo/dark-video-pipeline/modules/video_assembler.py)
+**Módulo 5:** O motor central. Controlará sub-processos do FFmpeg para: normalizar aspecto e fps, concatenar cenas, abafar áudio de fundo atrás da voz gerada.
+
+---
+
+## 3. Open Questions
+
+> [!WARNING]
+> 1. Posso assumir a criação da pasta `dark-video-pipeline` como base oficial a partir do diretório raiz `/Users/apple/Documents/MY MIND/Documents/4 - Arquivados /Antigravity/criaçao de conteudo`?
+> 2. O Módulo inicial prevê uso de **OpenRouter, Pexels e Pixabay Api Keys**. Criarei um `.env`. Você me autoriza inicializar o esqueleto de arquivos e assim que você colar as 3 chaves nós testamos o módulo 1?
+
+## 4. Verification Plan
+
+### Automated Tests
+1. **Sandboxing de Módulo isolado:**
+    * Rodarei `test_module1.py` disparando a API enviando: *"O segredo da retenção nas redes de negócio"*. Se aparecer na pasta `output/roteiro.json`, eu carimbo sucesso e vou para o Módulo 2. E assim até o Módulo 5.
+2. Rodar fluxo mestre Flask (`post /api/run_pipeline`).
+
+### Manual Verification
+- Ao final de todas as sessões, entregarei os metadados. Você reproduzirá o `/output/final_output.mp4` apontando defeitos visuais para refatorarmos os subprocessos do libass/FFmpeg.
