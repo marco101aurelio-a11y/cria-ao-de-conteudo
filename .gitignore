@@ -1,0 +1,29 @@
+# Dark Video Pipeline — .gitignore
+
+# Chaves de API (NUNCA enviar para o GitHub!)
+.env
+
+# Arquivos gerados pelo pipeline (muito pesados para o Git)
+output/
+*.mp3
+*.mp4
+*.wav
+*.srt
+
+# Modelos de ML (Whisper, Kokoro — baixados automaticamente)
+*.onnx
+voices.bin
+*.pt
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.bkp

@@ -1,0 +1,28 @@
+# Dark Video Pipeline V2 — Dependências
+# Instale com: pip install -r requirements.txt
+
+# Servidor Web
+flask==3.0.3
+
+# HTTP e variáveis de ambiente
+requests==2.32.3
+python-dotenv==1.0.1
+
+# Banco de dados (Supabase)
+supabase==2.5.3
+
+# Voz (TTS) — Kokoro local
+kokoro-onnx==0.4.2
+soundfile==0.12.1
+
+# Timestamps (STT) — Whisper local
+openai-whisper==20240930
+
+# Automação de navegador (Módulo 0 e Módulo 5)
+playwright==1.44.0
+
+# Áudio
+pydub==0.25.1
+
+# Utilitários
+ffmpeg-python==0.2.0
