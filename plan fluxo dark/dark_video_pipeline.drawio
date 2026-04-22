@@ -1,285 +1,426 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
-  <diagram name="Pipeline Dark Video com Narracao" id="DARK-VIDEO-PIPELINE-001">
-    <mxGraphModel dx="2376" dy="1543" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1100" math="0" shadow="0">
+  <diagram name="Dark Video Pipeline V2" id="DVP-COMPLETE-V2">
+    <mxGraphModel dx="3048" dy="1986" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2100" pageHeight="1400" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="bg" parent="1" style="whiteSpace=wrap;html=1;" value="" vertex="1">
-          <mxGeometry height="1020" width="1680" x="-10" y="-10" as="geometry" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;fontStyle=1;fontSize=18;strokeColor=none;fillColor=none;" value="DARK VIDEO PIPELINE V2  |  Arquitetura de Automação de Conteúdo Faceless" vertex="1">
+          <mxGeometry height="50" width="1900" x="45" y="-150" as="geometry" />
         </mxCell>
-        <mxCell id="pool1" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f9d0c4;strokeColor=#b85450;labelBackgroundColor=none;fontSize=11;fontStyle=1;fontColor=#000000;" value="M1 - GERADOR DE&#xa;ROTEIRO" vertex="1">
-          <mxGeometry height="160" width="1560" x="20" y="20" as="geometry" />
+        <mxCell id="leg_title" parent="1" style="text;html=1;fontStyle=1;fontSize=12;strokeColor=none;fillColor=none;" value="Legenda:" vertex="1">
+          <mxGeometry height="30" width="120" x="45" y="-90" as="geometry" />
         </mxCell>
-        <mxCell id="pool2" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e2f0d9;strokeColor=#82b366;labelBackgroundColor=none;fontSize=11;fontStyle=1;fontColor=#000000;" value="M2 - GERADOR DE&#xa;AUDIO (TTS)" vertex="1">
-          <mxGeometry height="160" width="1560" x="20" y="180" as="geometry" />
+        <mxCell id="leg_task" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#555555;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Processo / Módulo" vertex="1">
+          <mxGeometry height="40" width="150" x="165" y="-110" as="geometry" />
         </mxCell>
-        <mxCell id="pool3" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;labelBackgroundColor=none;fontSize=11;fontStyle=1;fontColor=#000000;" value="M3 - TIMESTAMPS&#xa;(STT Whisper)" vertex="1">
-          <mxGeometry height="150" width="1560" x="20" y="340" as="geometry" />
+        <mxCell id="leg_db" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1;fontColor=#000000;" value="Banco de Dados" vertex="1">
+          <mxGeometry height="40" width="130" x="330" y="-110" as="geometry" />
         </mxCell>
-        <mxCell id="pool4" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;labelBackgroundColor=none;fontSize=11;fontStyle=1;fontColor=#000000;" value="M4 - COLETOR DE&#xa;MIDIA (B-Roll)" vertex="1">
-          <mxGeometry height="170" width="1560" x="20" y="490" as="geometry" />
+        <mxCell id="leg_gw" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#000000;" value="Decisão" vertex="1">
+          <mxGeometry height="60" width="60" x="480" y="-120" as="geometry" />
         </mxCell>
-        <mxCell id="pool5" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;labelBackgroundColor=none;fontSize=11;fontStyle=1;fontColor=#000000;" value="M5 - MONTADOR&#xa;DE VIDEO" vertex="1">
-          <mxGeometry height="180" width="1560" x="20" y="660" as="geometry" />
+        <mxCell id="leg_api" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=10;fontColor=#000000;" value="API Externa" vertex="1">
+          <mxGeometry height="40" width="130" x="560" y="-110" as="geometry" />
         </mxCell>
-        <mxCell id="pool_err" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;labelBackgroundColor=none;fontSize=11;fontStyle=1;" value="TRATAMENTO&#xa;DE ERRO" vertex="1">
-          <mxGeometry height="100" width="1560" x="20" y="840" as="geometry" />
+        <mxCell id="leg_file" parent="1" style="shape=note;whiteSpace=wrap;html=1;fillColor=#fffacd;strokeColor=#b8860b;fontSize=10;fontColor=#000000;" value="Arquivo Local" vertex="1">
+          <mxGeometry height="40" width="130" x="710" y="-110" as="geometry" />
         </mxCell>
-        <mxCell id="n_start" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=10;fontColor=#000000;" value="INICIO&#xa;(input: tema)" vertex="1">
-          <mxGeometry height="56" width="56" x="72" y="72" as="geometry" />
+        <mxCell id="sl0" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#fde9d9;strokeColor=#b85450;strokeWidth=3;fontStyle=1;fontSize=12;fontColor=#000000;" value="MÓDULO 0 Viral Hunter" vertex="1">
+          <mxGeometry height="160" width="1940" x="30" y="-10" as="geometry" />
         </mxCell>
-        <mxCell id="n_end" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=10;strokeWidth=3;" value="FIM&#xa;final_output.mp4" vertex="1">
-          <mxGeometry height="60" width="80" x="1450" y="710" as="geometry" />
+        <mxCell id="m0_sched" parent="sl0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9d9;strokeColor=#b85450;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Agendador (scheduler.py)" vertex="1">
+          <mxGeometry height="60" width="150" x="130" y="42.5" as="geometry" />
         </mxCell>
-        <mxCell id="n_err_end" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;strokeWidth=3;fontColor=#000000;" value="FIM&#xa;(Erro)" vertex="1">
-          <mxGeometry height="56" width="56" x="700" y="862" as="geometry" />
+        <mxCell id="m0_scrape" parent="sl0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9d9;strokeColor=#b85450;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="TikTok Scraper (Playwright + API) Niche: #negocios #marketing&amp;nbsp;" vertex="1">
+          <mxGeometry height="60" width="170" x="370" y="45" as="geometry" />
         </mxCell>
-        <mxCell id="m1_t1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=center;fontColor=#000000;" value="Chamar OpenRouter API&#xa;modelo: llama-3.3-70b-instruct:free&#xa;POST /v1/chat/completions" vertex="1">
-          <mxGeometry height="60" width="170" x="175" y="70" as="geometry" />
-        </mxCell>
-        <mxCell id="m1_t2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=center;fontColor=#000000;" value="Parse + Validar JSON&#xa;Checar schema roteiro.json&#xa;Min 8 blocos alternados" vertex="1">
-          <mxGeometry height="60" width="170" x="395" y="70" as="geometry" />
-        </mxCell>
-        <mxCell id="m1_gw1" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;fontColor=#000000;" value="JSON&#xa;valido?" vertex="1">
-          <mxGeometry height="70" width="80" x="615" y="65" as="geometry" />
-        </mxCell>
-        <mxCell id="m1_t3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=center;fontColor=#000000;" value="Salvar roteiro.json&#xa;em /output/&#xa;Artefato OK" vertex="1">
-          <mxGeometry height="60" width="155" x="745" y="70" as="geometry" />
-        </mxCell>
-        <mxCell id="m1_gw_out" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f9d0c4;strokeColor=#b85450;fontSize=10;fontStyle=1;fontColor=#000000;" value="M1&#xa;OK?" vertex="1">
-          <mxGeometry height="70" width="80" x="960" y="65" as="geometry" />
-        </mxCell>
-        <mxCell id="note_retry" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#fff9c4;strokeColor=#d6b656;fontSize=9;align=left;fontColor=#000000;" value="Retry: JSON invalido,&#xa;repetir com temp=0.2&#xa;Max 3 tentativas." vertex="1">
-          <mxGeometry height="55" width="145" x="615" y="148" as="geometry" />
-        </mxCell>
-        <mxCell id="m2_t1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;fontColor=#000000;" value="Extrair blocos NARRACAO&#xa;de roteiro.json&#xa;Concatenar em texto unico" vertex="1">
-          <mxGeometry height="60" width="160" x="175" y="230" as="geometry" />
-        </mxCell>
-        <mxCell id="m2_t2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;fontColor=#000000;" value="TTS Engine&#xa;Kokoro (local) OU ElevenLabs&#xa;(conforme ENV: TTS_ENGINE)" vertex="1">
-          <mxGeometry height="60" width="170" x="385" y="230" as="geometry" />
-        </mxCell>
-        <mxCell id="m2_t3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;fontColor=#000000;" value="Se Kokoro: WAV-&amp;gt;MP3&#xa;ffmpeg -i narration.wav&#xa;-ab 192k narration.mp3" vertex="1">
-          <mxGeometry height="60" width="170" x="605" y="230" as="geometry" />
-        </mxCell>
-        <mxCell id="m2_t4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;fontColor=#000000;" value="Salvar narration.mp3&#xa;em /output/&#xa;Artefato OK" vertex="1">
-          <mxGeometry height="60" width="155" x="825" y="230" as="geometry" />
-        </mxCell>
-        <mxCell id="m2_gw_out" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#e2f0d9;strokeColor=#82b366;fontSize=10;fontStyle=1;fontColor=#000000;" value="M2&#xa;OK?" vertex="1">
-          <mxGeometry height="70" width="80" x="1040" y="225" as="geometry" />
-        </mxCell>
-        <mxCell id="note_tts" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;align=left;fontColor=#000000;" value="ENV TTS_ENGINE=local -&amp;gt; Kokoro&#xa;ENV TTS_ENGINE=api -&amp;gt; ElevenLabs&#xa;Definir em .env antes de executar" vertex="1">
-          <mxGeometry height="55" width="175" x="385" y="300" as="geometry" />
-        </mxCell>
-        <mxCell id="m3_t1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=center;fontColor=#000000;" value="Whisper STT&#xa;model.transcribe(narration.mp3,&#xa;word_timestamps=True, lang=pt)" vertex="1">
-          <mxGeometry height="60" width="185" x="175" y="390" as="geometry" />
-        </mxCell>
-        <mxCell id="m3_t2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=center;fontColor=#000000;" value="Extrair array de palavras&#xa;schema: [{word, start, end}]&#xa;por segment do resultado" vertex="1">
-          <mxGeometry height="60" width="175" x="410" y="390" as="geometry" />
-        </mxCell>
-        <mxCell id="m3_t3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=center;fontColor=#000000;" value="Salvar timestamps.json&#xa;em /output/&#xa;Artefato OK" vertex="1">
-          <mxGeometry height="60" width="155" x="635" y="390" as="geometry" />
-        </mxCell>
-        <mxCell id="m3_gw_out" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1;fontColor=#000000;" value="M3&#xa;OK?" vertex="1">
-          <mxGeometry height="70" width="80" x="850" y="385" as="geometry" />
-        </mxCell>
-        <mxCell id="note_whisper" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;align=left;fontColor=#000000;" value="GPU disponivel:&#xa;adicionar flag&#xa;--device cuda" vertex="1">
-          <mxGeometry height="50" width="130" x="432.5" y="462" as="geometry" />
-        </mxCell>
-        <mxCell id="m4_t1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffacd;strokeColor=#d6b656;fontSize=10;align=center;fontColor=#000000;" value="Extrair keywords&#xa;de blocos VISUAL&#xa;em roteiro.json" vertex="1">
-          <mxGeometry height="60" width="145" x="175" y="550" as="geometry" />
-        </mxCell>
-        <mxCell id="m4_t2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffacd;strokeColor=#d6b656;fontSize=10;align=center;fontColor=#000000;" value="Pexels API&#xa;GET /videos/search?query={kw}&#xa;&amp;amp;per_page=3&amp;amp;orientation=portrait" vertex="1">
-          <mxGeometry height="60" width="165" x="370" y="550" as="geometry" />
-        </mxCell>
-        <mxCell id="m4_gw1" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;fontColor=#000000;" value="Clip&#xa;encontrado?" vertex="1">
-          <mxGeometry height="70" width="80" x="590" y="545" as="geometry" />
-        </mxCell>
-        <mxCell id="m4_t3a" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;align=center;fontColor=#000000;" value="Fallback: usar&#xa;keyword: dark mystery" vertex="1">
-          <mxGeometry height="50" width="145" x="720" y="508" as="geometry" />
-        </mxCell>
-        <mxCell id="m4_t3b" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffacd;strokeColor=#d6b656;fontSize=10;align=center;fontColor=#000000;" value="Download clip (5-15s)&#xa;/output/clips/clip_{N}.mp4" vertex="1">
-          <mxGeometry height="50" width="150" x="720" y="570" as="geometry" />
-        </mxCell>
-        <mxCell id="m4_t4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffacd;strokeColor=#d6b656;fontSize=10;align=center;fontColor=#000000;" value="Pixabay Music API&#xa;GET ?q=dark+cinematic&#xa;Salvar background.mp3" vertex="1">
-          <mxGeometry height="60" width="155" x="925" y="550" as="geometry" />
-        </mxCell>
-        <mxCell id="m4_gw_out" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;fontColor=#000000;" value="M4&#xa;OK?" vertex="1">
-          <mxGeometry height="70" width="80" x="1140" y="545" as="geometry" />
-        </mxCell>
-        <mxCell id="m5_t1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;fontColor=#000000;" value="5.1 Normalizar clips&#xa;ffmpeg scale=1080:1920&#xa;crop=1080:1920 -t {dur_bloco}" vertex="1">
-          <mxGeometry height="60" width="155" x="115" y="720" as="geometry" />
-        </mxCell>
-        <mxCell id="m5_t2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;fontColor=#000000;" value="5.2 Concatenar clips&#xa;ffmpeg -f concat&#xa;Output: video_base.mp4" vertex="1">
-          <mxGeometry height="60" width="150" x="320" y="720" as="geometry" />
-        </mxCell>
-        <mxCell id="m5_t3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;fontColor=#000000;" value="5.3 Mix audio&#xa;narration vol=1.0&#xa;+ bg vol=0.15 (amix)" vertex="1">
-          <mxGeometry height="60" width="150" x="520" y="720" as="geometry" />
-        </mxCell>
-        <mxCell id="m5_t4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;fontColor=#000000;" value="5.4 Gerar SRT&#xa;timestamps.json-&amp;gt;subtitles.srt&#xa;(1 entrada por palavra)" vertex="1">
-          <mxGeometry height="60" width="155" x="720" y="720" as="geometry" />
-        </mxCell>
-        <mxCell id="m5_t5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;fontColor=#000000;" value="5.5 Render Final&#xa;ffmpeg libx264 CRF23&#xa;+ AAC 192k -&amp;gt; final_output.mp4" vertex="1">
-          <mxGeometry height="60" width="165" x="930" y="720" as="geometry" />
-        </mxCell>
-        <mxCell id="err_t1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;fontColor=#000000;" value="Registrar erro no log&#xa;Identificar modulo falho&#xa;Notificar operador" vertex="1">
-          <mxGeometry height="60" width="165" x="480" y="860" as="geometry" />
-        </mxCell>
-        <mxCell id="e_start_m1t1" edge="1" parent="1" source="n_start" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_t1">
+        <mxCell id="em0_schedm0_scrape" edge="1" parent="sl0" source="m0_sched" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m0_scrape" value="Busca Virais">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_m1t1_m1t2" edge="1" parent="1" source="m1_t1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_t2">
+        <mxCell id="n_start" parent="sl0" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=3;fontStyle=1;fontSize=11;fontColor=#000000;" value="INÍCIO Agendado (CRON)" vertex="1">
+          <mxGeometry height="70" width="70" x="30" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="en_startm0_sched" edge="1" parent="sl0" source="n_start" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m0_sched" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_m1t2_gw1" edge="1" parent="1" source="m1_t2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_gw1">
+        <mxCell id="m0_note" parent="sl0" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fffacd;strokeColor=#b8860b;fontSize=10;strokeWidth=1;fontStyle=2;fontColor=#000000;" value="Campos: url, views, transcription, niche, created_at" vertex="1">
+          <mxGeometry height="55" width="200" x="1670" y="47.5" as="geometry" />
+        </mxCell>
+        <mxCell id="m0_db" parent="sl0" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1;fontColor=#000000;" value="Supabase viral_references" vertex="1">
+          <mxGeometry height="60" width="150" x="1450" y="42.5" as="geometry" />
+        </mxCell>
+        <mxCell id="em0_dbm0_note" edge="1" parent="sl0" source="m0_db" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" target="m0_note" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_gw1_m1t3" edge="1" parent="1" source="m1_gw1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_t3" value="Sim">
+        <mxCell id="m0_gw" parent="sl0" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontStyle=1;fontColor=#000000;" value="Views &amp;gt; 100k?" vertex="1">
+          <mxGeometry height="80" width="80" x="1230" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="em0_gwm0_db" edge="1" parent="sl0" source="m0_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m0_db" value="Sim - Salva">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_gw1_retry" edge="1" parent="1" source="m1_gw1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;strokeColor=#b85450;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="m1_t1" value="Nao (retry max 3x)">
+        <mxCell id="m0_whisp" parent="sl0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9d9;strokeColor=#b85450;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Whisper STT Transcrição Local (base model)" vertex="1">
+          <mxGeometry height="60" width="170" x="950" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="em0_whispm0_gw" edge="1" parent="sl0" source="m0_whisp" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m0_gw" value="Transcrição">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m0_dload" parent="sl0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9d9;strokeColor=#b85450;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Download Áudio do Vídeo (yt-dlp)" vertex="1">
+          <mxGeometry height="60" width="155" x="690" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="em0_scrapem0_dload" edge="1" parent="sl0" source="m0_scrape" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m0_dload" value="Metadados + URL">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em0_dloadm0_whisp" edge="1" parent="sl0" source="m0_dload" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m0_whisp" value="audio.mp3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m0_skip" parent="sl0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Ignora (skip)" vertex="1">
+          <mxGeometry height="40" width="120" x="1150" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="em0_gwm0_skip" edge="1" parent="sl0" source="m0_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m0_skip" value="Não">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sl1" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e2f0d9;strokeColor=#82b366;strokeWidth=3;fontStyle=1;fontSize=12;fontColor=#000000;" value="MÓDULO 1 Script Generator" vertex="1">
+          <mxGeometry height="180" width="1935" x="30" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="m1_read" parent="sl1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1;fontColor=#000000;" value="Supabase viral_references" vertex="1">
+          <mxGeometry height="60" width="150" x="130" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="m1_json" parent="sl1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fffacd;strokeColor=#b8860b;fontSize=10;strokeWidth=1;fontStyle=2;fontColor=#000000;" value="roteiro.json {hook, cenas[], cta, keywords[], duracao}" vertex="1">
+          <mxGeometry height="65" width="200" x="1380" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m1_gw" parent="sl1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontStyle=1;fontColor=#000000;" value="JSON válido?" vertex="1">
+          <mxGeometry height="80" width="80" x="1210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="em1_gwm1_json" edge="1" parent="sl1" source="m1_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_json" value="Sim">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m1_llm" parent="sl1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=11;fontColor=#000000;" value="OpenRouter API (Llama 3.3 / Qwen)" vertex="1">
+          <mxGeometry height="60" width="180" x="850" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="em1_llmm1_gw" edge="1" parent="sl1" source="m1_llm" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_gw" value="Resposta">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m1_retry" parent="sl1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Retry (temp -0.1)" vertex="1">
+          <mxGeometry height="40" width="130" x="1050" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="em1_gwm1_retry" edge="1" parent="sl1" source="m1_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="m1_retry" value="Não">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em1_retrym1_llm" edge="1" parent="sl1" source="m1_retry" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_llm" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m1_prompt" parent="sl1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2f0d9;strokeColor=#82b366;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Monta System Prompt (Regra Staage: Hook+Promessa+Prova+CTA)" vertex="1">
+          <mxGeometry height="60" width="200" x="590" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="em1_promptm1_llm" edge="1" parent="sl1" source="m1_prompt" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_llm" value="POST">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m1_pick" parent="sl1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2f0d9;strokeColor=#82b366;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Seleciona Melhor Viral (por views + data)" vertex="1">
+          <mxGeometry height="60" width="160" x="350" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="em1_readm1_pick" edge="1" parent="sl1" source="m1_read" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_pick" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em1_pickm1_prompt" edge="1" parent="sl1" source="m1_pick" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_prompt" value="Transcrição">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sl3" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#9673a6;strokeWidth=3;fontStyle=1;fontSize=12;fontColor=#000000;" value="MÓDULO 3 STT (Timestamps)" vertex="1">
+          <mxGeometry height="160" width="1940" x="27.5" y="621" as="geometry" />
+        </mxCell>
+        <mxCell id="m3_out" parent="sl3" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fffacd;strokeColor=#b8860b;fontSize=10;strokeWidth=1;fontStyle=2;fontColor=#000000;" value="timestamps.json [{word, start, end, scene_id}]" vertex="1">
+          <mxGeometry height="55" width="180" x="960" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="sl2" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#d9eaf7;strokeColor=#4a7fbf;strokeWidth=3;fontStyle=1;fontSize=12;fontColor=#000000;" value="MÓDULO 2 TTS (Voz)" vertex="1">
+          <mxGeometry height="215" width="1940" x="27.5" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="m2_read" parent="sl2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9eaf7;strokeColor=#4a7fbf;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Lê roteiro.json (Cenas)" vertex="1">
+          <mxGeometry height="60" width="155" x="175" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="m2_kokoro" parent="sl2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9eaf7;strokeColor=#4a7fbf;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Kokoro ONNX (Local - Offline)" vertex="1">
+          <mxGeometry height="60" width="170" x="430" y="67.5" as="geometry" />
+        </mxCell>
+        <mxCell id="m2_norm" parent="sl2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9eaf7;strokeColor=#4a7fbf;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Normaliza Áudio (Volume, Hz) pydub" vertex="1">
+          <mxGeometry height="60" width="155" x="765" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="m2_out" parent="sl2" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fffacd;strokeColor=#b8860b;fontSize=10;strokeWidth=1;fontStyle=2;fontColor=#000000;" value="narration.mp3 (44.1kHz, 16-bit, Stereo)" vertex="1">
+          <mxGeometry height="55" width="170" x="975" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="em2_readm2_gw" edge="1" parent="sl2" source="m2_read" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="m2_kokoro" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="384.99999999999955" y="90" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em2_kokorom2_norm" edge="1" parent="sl2" source="m2_kokoro" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m2_norm" value="Raw Audio">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em2_normm2_out" edge="1" parent="sl2" source="m2_norm" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m2_out" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sl4" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#daeafc;strokeColor=#336791;strokeWidth=3;fontStyle=1;fontSize=12;fontColor=#000000;" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;modulo&amp;nbsp;&lt;/font&gt;&lt;span style=&quot;color: rgb(0, 0, 0); background-color: transparent;&quot;&gt;&amp;nbsp;4&lt;/span&gt;" vertex="1">
+          <mxGeometry height="210" width="1940" x="20" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="m4_cache" parent="sl4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#336791;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Usa Cache (broll_library)" vertex="1">
+          <mxGeometry height="50" width="140" x="770" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="m4_read" parent="sl4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#daeafc;strokeColor=#336791;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Lê keywords[] de roteiro.json" vertex="1">
+          <mxGeometry height="60" width="155" x="155" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="m4_db" parent="sl4" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1;fontColor=#000000;" value="Supabase broll_library" vertex="1">
+          <mxGeometry height="60" width="150" x="380" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="em4_readm4_db" edge="1" parent="sl4" source="m4_read" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_db" value="Consulta">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m4_valid" parent="sl4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#daeafc;strokeColor=#336791;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Valida Resolução (min 720p, H.264)" vertex="1">
+          <mxGeometry height="60" width="165" x="980" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="em4_cachem4_valid" edge="1" parent="sl4" source="m4_cache" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_valid" value="MP4 Cache">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m4_norm" parent="sl4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#daeafc;strokeColor=#336791;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Normaliza Clipes FFmpeg (9:16, 30fps)" vertex="1">
+          <mxGeometry height="60" width="165" x="1260" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="em4_validm4_norm" edge="1" parent="sl4" source="m4_valid" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_norm" value="OK">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m4_out" parent="sl4" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fffacd;strokeColor=#b8860b;fontSize=10;strokeWidth=1;fontStyle=2;fontColor=#000000;" value="clips/   cena_1.mp4   cena_2.mp4 music.mp3" vertex="1">
+          <mxGeometry height="65" width="150" x="1730" y="72.5" as="geometry" />
+        </mxCell>
+        <mxCell id="m4_save" parent="sl4" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1;fontColor=#000000;" value="Salva Novo Clipe broll_library" vertex="1">
+          <mxGeometry height="60" width="150" x="1500" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="em4_normm4_save" edge="1" parent="sl4" source="m4_norm" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_save" value="Salva">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em4_savem4_out" edge="1" parent="sl4" source="m4_save" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" target="m4_out" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sl5" parent="1" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#c8a400;strokeWidth=3;fontStyle=1;fontSize=12;fontColor=#000000;" value="MÓDULO 5 Video Assembler" vertex="1">
+          <mxGeometry height="160" width="1980" x="20" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="m5_gw" parent="sl5" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontStyle=1;fontColor=#000000;" value="Render OK?" vertex="1">
+          <mxGeometry height="80" width="80" x="1720" as="geometry" />
+        </mxCell>
+        <mxCell id="m5_load" parent="sl5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#c8a400;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Carrega Todos Assets (clips + ts + audio)" vertex="1">
+          <mxGeometry height="65" width="165" x="140" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="m5_err" parent="sl5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Log Erro + Alert" vertex="1">
+          <mxGeometry height="45" width="130" x="1560" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="em5_gwm5_err" edge="1" parent="sl5" source="m5_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="m5_err" value="Erro">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="655" y="40" />
-              <mxPoint x="260" y="40" />
+              <mxPoint x="1760" y="110" />
+              <mxPoint x="1720" y="110" />
+              <mxPoint x="1720" y="122" />
+            </Array>
+            <mxPoint x="1660" y="100" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n_end" parent="sl5" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=4;fontStyle=1;fontSize=11;fontColor=#000000;" value="VÍDEO FINAL .mp4" vertex="1">
+          <mxGeometry height="70" width="70" x="1900" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="em5_gwn_end" edge="1" parent="sl5" source="m5_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="n_end" value="Sucesso">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1700" y="60" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5_vol" parent="sl5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#c8a400;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="FFmpeg Sidechain Voz &amp;gt; Música (compressor dinâmico)" vertex="1">
+          <mxGeometry height="65" width="180" x="1420" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="em5_volm5_gw" edge="1" parent="sl5" source="m5_vol" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="m5_gw" value="Output.mp4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1620" y="60" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5_comp" parent="sl5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#c8a400;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="FFmpeg: Composite Final (concat + overlay)" vertex="1">
+          <mxGeometry height="65" width="180" x="1150" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="em5_compm5_vol" edge="1" parent="sl5" source="m5_comp" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m5_vol" value="Vídeo Draft">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5_alpha" parent="sl5" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fffacd;strokeColor=#b8860b;fontSize=10;strokeWidth=1;fontStyle=2;fontColor=#000000;" value="subtitles_alpha.webm (Canal Alpha/Chroma Key)" vertex="1">
+          <mxGeometry height="55" width="190" x="910" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="em5_alpham5_comp" edge="1" parent="sl5" source="m5_alpha" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m5_comp" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5_play" parent="sl5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#c8a400;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Playwright Chromium Grava Tela (fundo transparente)" vertex="1">
+          <mxGeometry height="65" width="180" x="660" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="em5_playm5_alpha" edge="1" parent="sl5" source="m5_play" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m5_alpha" value="Grava">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5_html" parent="sl5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#c8a400;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Gera subtitles.html (CSS Animado por Word+Timestamp)" vertex="1">
+          <mxGeometry height="65" width="180" x="420" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="em5_loadm5_html" edge="1" parent="sl5" source="m5_load" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m5_html" value="JSON + clips">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em5_htmlm5_play" edge="1" parent="sl5" source="m5_html" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m5_play" value="HTML">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em0_dbm1_read" edge="1" parent="1" source="m0_note" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" target="m1_read" value="Alimenta M1">
+          <mxGeometry relative="1" x="-0.0014" as="geometry">
+            <mxPoint x="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="1800" y="180" />
+              <mxPoint x="240" y="180" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_m1t3_gwout" edge="1" parent="1" source="m1_t3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m1_gw_out">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m1ok_m2" edge="1" parent="1" source="m1_gw_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#82b366;" target="m2_t1" value="OK">
+        <mxCell id="em1_jsonm2_read" edge="1" parent="1" source="m1_json" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" target="m2_read" value="Passa Roteiro">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1000" y="200" />
-              <mxPoint x="255" y="200" />
+              <mxPoint x="1520" y="330" />
+              <mxPoint x="1520" y="420" />
+              <mxPoint x="278" y="420" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_m1err_errt1" edge="1" parent="1" source="m1_gw_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#b85450;dashed=1;" target="err_t1" value="Erro">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="em2_11labsm2_norm" edge="1" parent="1" source="m2_11labs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" value="Raw Audio">
+          <mxGeometry relative="1" x="-0.7455" as="geometry">
+            <mxPoint as="offset" />
             <Array as="points">
-              <mxPoint x="1060" y="160" />
-              <mxPoint x="1300" y="160" />
-              <mxPoint x="1300" y="890" />
-              <mxPoint x="645" y="890" />
+              <mxPoint x="-205" y="500" />
+              <mxPoint x="-180" y="500" />
+              <mxPoint x="-180" y="490" />
+              <mxPoint x="-90" y="490" />
+            </Array>
+            <mxPoint x="-90" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3_read" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#9673a6;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Lê narration.mp3" vertex="1">
+          <mxGeometry height="60" width="155" x="200" y="665" as="geometry" />
+        </mxCell>
+        <mxCell id="m3_whisp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#9673a6;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Whisper STT Word-by-Word (base model)" vertex="1">
+          <mxGeometry height="60" width="170" x="410" y="665" as="geometry" />
+        </mxCell>
+        <mxCell id="m3_fmt" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#9673a6;strokeWidth=2;fontSize=11;fontStyle=0;fontColor=#000000;" value="Formata JSON (start_ms, end_ms, word por cena)" vertex="1">
+          <mxGeometry height="60" width="170" x="640" y="665" as="geometry" />
+        </mxCell>
+        <mxCell id="em3_readm3_whisp" edge="1" parent="1" source="m3_read" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m3_whisp" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em3_whispm3_fmt" edge="1" parent="1" source="m3_whisp" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m3_fmt" value="Transcrição Bruta">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em3_fmtm3_out" edge="1" parent="1" source="m3_fmt" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m3_out" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m4_pexels" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=60;strokeColor=#555555;strokeWidth=2;fontSize=11;fontStyle=0;" value="Pexels API (Busca Vídeo)" vertex="1">
+          <mxGeometry height="90" width="610" x="-620" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="m4_pixab" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=60;strokeColor=#555555;strokeWidth=2;fontSize=11;fontStyle=0;" value="Pixabay API (Música Fundo)" vertex="1">
+          <mxGeometry height="90" width="530" x="-720" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="em1_jsonm4_read" edge="1" parent="1" source="m1_json" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;exitX=0.691;exitY=1.013;exitDx=0;exitDy=0;exitPerimeter=0;" target="m4_read" value="keywords">
+          <mxGeometry relative="1" x="0.2821" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1548" y="350" />
+              <mxPoint x="1570" y="350" />
+              <mxPoint x="1570" y="790" />
+              <mxPoint x="273" y="790" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_m2t1_m2t2" edge="1" parent="1" source="m2_t1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m2_t2">
+        <mxCell id="em4_dbm4_gw" edge="1" parent="1" source="m4_db" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_gw" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_m2t2_m2t3" edge="1" parent="1" source="m2_t2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m2_t3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m2t3_m2t4" edge="1" parent="1" source="m2_t3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m2_t4">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m2t4_gwout" edge="1" parent="1" source="m2_t4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m2_gw_out">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m2ok_m3" edge="1" parent="1" source="m2_gw_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#6c8ebf;" target="m3_t1" value="OK">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="em4_gwm4_pexels" edge="1" parent="1" source="m4_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="m4_pexels" value="Não">
+          <mxGeometry relative="1" x="-0.5299" as="geometry">
+            <mxPoint x="-1" as="offset" />
             <Array as="points">
-              <mxPoint x="1080" y="360" />
-              <mxPoint x="267" y="360" />
+              <mxPoint x="680" y="880" />
+              <mxPoint x="680" y="940" />
+              <mxPoint x="-410" y="940" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_m2err_errt1" edge="1" parent="1" source="m2_gw_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#b85450;dashed=1;" target="err_t1" value="Erro">
+        <mxCell id="em4_gwm4_cache" edge="1" parent="1" source="m4_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_cache" value="Sim">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em4_pexelsm4_valid" edge="1" parent="1" source="m4_pexels" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_valid" value="MP4 Raw">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1320" y="260" />
-              <mxPoint x="1320" y="890" />
-              <mxPoint x="645" y="890" />
+              <mxPoint x="-410" y="1030" />
+              <mxPoint x="1103" y="1030" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_m3t1_m3t2" edge="1" parent="1" source="m3_t1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m3_t2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m3t2_m3t3" edge="1" parent="1" source="m3_t2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m3_t3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m3t3_gwout" edge="1" parent="1" source="m3_t3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m3_gw_out">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m3ok_m4" edge="1" parent="1" source="m3_gw_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#d6b656;" target="m4_t1" value="OK">
+        <mxCell id="em4_gwm4_pixab" edge="1" parent="1" source="m4_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_pixab" value="Busca Música">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="890" y="510" />
-              <mxPoint x="247" y="510" />
+              <mxPoint x="-80" y="820" />
+              <mxPoint x="-80" y="840" />
+              <mxPoint x="-455" y="840" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_m3err_errt1" edge="1" parent="1" source="m3_gw_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#b85450;dashed=1;" target="err_t1" value="Erro">
+        <mxCell id="em3_outm5_load" edge="1" parent="1" source="m3_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" target="m5_load" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1340" y="420" />
-              <mxPoint x="1340" y="890" />
-              <mxPoint x="645" y="890" />
+              <mxPoint x="1090" y="750" />
+              <mxPoint x="150" y="750" />
+              <mxPoint x="150" y="1112" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_m4t1_m4t2" edge="1" parent="1" source="m4_t1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_t2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m4t2_gw1" edge="1" parent="1" source="m4_t2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_gw1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_gw1_fallback" edge="1" parent="1" source="m4_gw1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="m4_t3a" value="Nao">
+        <mxCell id="em4_outm5_load" edge="1" parent="1" source="m4_gw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" target="m5_load" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="670" y="563" />
-              <mxPoint x="670" y="533" />
+              <mxPoint x="708" y="970" />
+              <mxPoint x="320" y="970" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_fallback_t3b" edge="1" parent="1" source="m4_t3a" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" target="m4_t3b">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_gw1_t3b" edge="1" parent="1" source="m4_gw1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_t3b" value="Sim">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m4t3b_m4t4" edge="1" parent="1" source="m4_t3b" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_t4">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m4t4_gwout" edge="1" parent="1" source="m4_t4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m4_gw_out">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_m4ok_m5" edge="1" parent="1" source="m4_gw_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#9673a6;" target="m5_t1" value="OK">
+        <mxCell id="em2_outm5_load" edge="1" parent="1" source="m2_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;fontColor=#000000;" target="m5_load" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1180" y="680" />
-              <mxPoint x="192" y="680" />
+              <mxPoint x="1085" y="560" />
+              <mxPoint x="120" y="560" />
+              <mxPoint x="120" y="1112" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_m4err_errt1" edge="1" parent="1" source="m4_gw_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#b85450;dashed=1;" target="err_t1" value="Erro">
+        <mxCell id="vF3iQEM9I8fMo932ddjP-1" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;" target="m4_gw" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1360" y="580" />
-              <mxPoint x="1360" y="890" />
-              <mxPoint x="645" y="890" />
+              <mxPoint x="1850" y="820" />
             </Array>
+            <mxPoint x="1850" y="870" as="sourcePoint" />
+            <mxPoint x="283" y="1080" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_m5t1_m5t2" edge="1" parent="1" source="m5_t1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m5_t2">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="m4_gw" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontStyle=1;fontColor=#000000;" value="Tem no Banco?" vertex="1">
+          <mxGeometry height="80" width="80" x="667.5" y="800" as="geometry" />
         </mxCell>
-        <mxCell id="e_m5t2_m5t3" edge="1" parent="1" source="m5_t2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m5_t3">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="m2_11labs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=60;strokeColor=#555555;strokeWidth=2;fontSize=11;fontStyle=0;" value="ElevenLabs API (Premium Voice)" vertex="1">
+          <mxGeometry height="55" width="330" x="-360" y="540" as="geometry" />
         </mxCell>
-        <mxCell id="e_m5t3_m5t4" edge="1" parent="1" source="m5_t3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m5_t4">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="vF3iQEM9I8fMo932ddjP-3" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontStyle=1;fontColor=#000000;" value="ElevenLabs Chave OK?" vertex="1">
+          <mxGeometry height="80" width="80" x="-390" y="400" as="geometry" />
         </mxCell>
-        <mxCell id="e_m5t4_m5t5" edge="1" parent="1" source="m5_t4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;" target="m5_t5">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="vF3iQEM9I8fMo932ddjP-4" edge="1" parent="1" source="vF3iQEM9I8fMo932ddjP-3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="m2_11labs" value="Sim">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-350" y="520" />
+              <mxPoint x="-390" y="520" />
+              <mxPoint x="-390" y="588" />
+            </Array>
+            <mxPoint x="-390" y="580" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e_m5t5_end" edge="1" parent="1" source="m5_t5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#82b366;" target="n_end">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_errt1_errend" edge="1" parent="1" source="err_t1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#b85450;" target="n_err_end">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="em2_outm3_read" edge="1" parent="1" source="m2_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;dashed=1;exitX=0;exitY=0;exitDx=170;exitDy=42.5;exitPerimeter=0;entryX=0.57;entryY=-0.003;entryDx=0;entryDy=0;entryPerimeter=0;" target="m3_read" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1207.5" y="503" />
+              <mxPoint x="1207.5" y="580" />
+              <mxPoint x="288.5" y="580" />
+            </Array>
+            <mxPoint x="288" y="650" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
