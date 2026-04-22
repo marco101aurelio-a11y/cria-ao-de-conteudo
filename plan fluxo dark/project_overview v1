@@ -1,0 +1,285 @@
+# 🎬 Overview: Projeto Criação de Conteúdo (Dark Video Pipeline V2)
+
+## 🎯 Objetivo Central
+
+Construir um **ecossistema automatizado de criação de vídeos "faceless"** (sem aparecer) para TikTok e Instagram Reels. O sistema recebe um tema (ou busca tendências automaticamente) e entrega um `.mp4` finalizado com narração, legendas animadas estilo CapCut, B-Roll cinematográfico e música de fundo — **100% gerado por IA**.
+
+---
+
+## 🧠 Base Metodológica (Os PDFs)
+
+O projeto é ancorado em dois materiais do **Método Staage** (Intensivo de Marketing com IA):
+
+| Material | Conteúdo |
+|---|---|
+| **Complementar 01** | Método de criação de conteúdo viral em **6 etapas**: definir nicho → pesquisar virais → transcrever → adaptar com IA → produzir → analisar e escalar |
+| **Complementar 02** | Criação de **copies persuasivas** com framework `Hook + Promessa + Prova + CTA` e geração de imagens com IA |
+
+O **Framework Staage** é a espinha dorsal dos roteiros: todo conteúdo gerado segue a estrutura dramática → gancho com dado surpreendente → reviravolta → lição de moral.
+
+---
+
+## 🏗️ Arquitetura: 6 Módulos Sequenciais
+
+```mermaid
+graph TD
+    classDef module0 fill:#f9d0c4,stroke:#b85450,stroke-width:2px,color:#000
+    classDef module123 fill:#e2f0d9,stroke:#82b366,stroke-width:2px,color:#000
+    classDef module4 fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#000
+    classDef module5 fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:#000
+    classDef database fill:#e1d5e7,stroke:#9673a6,stroke-width:2px,color:#000
+    classDef startend fill:#d5e8d4,stroke:#82b366,stroke-width:4px,color:#000
+
+    Start((Início)):::startend
+
+    subgraph M0["MÓDULO 0 — Viral Hunter"]
+        Scrape["TikTok Scraper
+(Playwright)"]:::module0
+        Whisper0["Whisper STT
+(Transcreve Áudio)"]:::module0
+        DB1[("Supabase
+viral_references")]:::database
+    end
+
+    subgraph M123["MÓDULOS 1, 2 e 3 — Roteiro e Áudio"]
+        LLM["M1: OpenRouter
+(Hook + Copy)"]:::module123
+        JSON_Roteiro["roteiro.json"]
+        TTS["M2: Kokoro / ElevenLabs
+(Voz Off)"]:::module123
+        STT3["M3: Whisper
+(timestamps.json)"]:::module123
+    end
+
+    subgraph M4["MÓDULO 4 — Smart Media Vault"]
+        CheckDB{"Tem no
+Banco?"}
+        Pexels["API Pexels
+(Baixa Vídeo)"]:::module4
+        Cache["Usa Vídeo
+em Cache"]:::module4
+        DB2[("Supabase
+broll_library")]:::database
+    end
+
+    subgraph M5["MÓDULO 5 — Video Assembler"]
+        Playwright["Playwright HTML/CSS
+(Legendas Animadas)"]:::module5
+        FFmpeg["FFmpeg Mix
+(Cenas + Alpha + Áudio)"]:::module5
+    end
+
+    End(("📱 Vídeo
+Pronto!")):::startend
+
+    Start --> Scrape
+    Scrape --> Whisper0
+    Whisper0 -- "Salva" --> DB1
+    DB1 -- "Injeta Transcrição" --> LLM
+    LLM --> JSON_Roteiro
+    JSON_Roteiro --> TTS
+    TTS --> STT3
+    JSON_Roteiro -- "Lê Keywords" --> CheckDB
+    CheckDB -- "Não" --> Pexels
+    CheckDB -- "Sim" --> Cache
+    Pexels -. "Salva Novo" .-> DB2
+    DB2 -. "Consulta" .-> CheckDB
+    STT3 -- "Timestamps" --> Playwright
+    Playwright -- "Vídeo Alpha" --> FFmpeg
+    Pexels -- "MP4" --> FFmpeg
+    Cache -- "MP4" --> FFmpeg
+    TTS -- "Áudio" --> FFmpeg
+    FFmpeg --> End
+```
+
+---
+
+## 🖥️ Orquestrador: Flask Server (`server.py`)
+
+Uma novidade do V2 é que os módulos não são mais chamados diretamente por um `main.py` simples — agora existe um **servidor Flask** que expõe cada módulo como um endpoint REST, permitindo controle granular ou execução automática completa.
+
+| Endpoint | Ação |
+|---|---|
+| `POST /api/module0/hunt` | Roda o Viral Hunter (scraping TikTok) |
+| `POST /api/module1/generate_script` | Gera roteiro via OpenRouter |
+| `POST /api/module2/generate_audio` | Gera narração (TTS) |
+| `POST /api/module3/generate_timestamps` | Gera timestamps via Whisper |
+| `POST /api/module4/collect_media` | Coleta B-Roll (Pexels + cache) |
+| `POST /api/module5/render_video` | Monta o vídeo final |
+| `POST /api/run_pipeline` | **Executa tudo do 0 ao 5 em sequência** |
+
+> Servidor roda em `http://localhost:5000`
+
+---
+
+## 🗄️ Supabase: Tabelas Necessárias
+
+Antes de rodar, criar no Supabase:
+
+**Tabela `viral_references`** (Módulos 0 e 1)
+```
+id (uuid) | tiktok_url (text) | views (int) | transcription_text (text) | created_at (timestamp)
+```
+
+**Tabela `broll_library`** (Módulo 4)
+```
+id (uuid) | pexels_id (text) | download_url (text) | theme_keyword (text) | created_at (timestamp)
+```
+
+---
+
+## 📦 Módulo a Módulo
+
+### MÓDULO 0 — Viral Hunter *(Inovação principal)*
+- Faz scraping automático do TikTok (via Playwright/Selenium)
+- Coleta vídeos com +100k views no nicho de Negócios/Marketing
+- Usa **Whisper local** para transcrever o áudio
+- Salva transcrições no **Supabase** (`viral_references`)
+- **Substitui o input manual de tema** — o sistema aprende sozinho o que já viraliza
+
+### MÓDULO 1 — Gerador de Roteiro
+- Consulta o Supabase para pegar uma transcrição viral
+- Envia para **OpenRouter** (modelo `meta-llama/llama-3.3-70b-instruct:free`)
+- **System Prompt** aplica o Framework Staage automaticamente
+- Output: `roteiro.json` com blocos `[NARRACAO]` e `[VISUAL]` alternados
+
+### MÓDULO 2 — TTS (Voz)
+- **Opção A (gratuita):** Kokoro TTS rodando 100% local (`.onnx`)
+- **Opção B (paga):** ElevenLabs API — `eleven_multilingual_v2`
+- Output: `narration.mp3`
+
+### MÓDULO 3 — STT (Timestamps)
+- Whisper open-source, roda local com `word_timestamps=True`
+- Gera `timestamps.json` com início/fim de cada palavra
+- Base para sincronizar as legendas frame a frame
+
+### MÓDULO 4 — Smart Media Vault *(Inovação)*
+- Busca B-Roll no **Pexels API** por keyword (orientação portrait/vertical)
+- **Cache inteligente:** todo clipe bom é salvo no Supabase (`broll_library`)
+- Se Pexels falhar → usa o banco próprio de cenas (independência da API)
+- Música: **Pixabay Music API** (dark cinematic, gratuita)
+
+### MÓDULO 5 — Video Assembler *(A Grande Inovação — Legendas CSS)*
+- Normaliza duração de cada clipe para combinar com a narração
+- Concatena clipes → mixa áudio (narração 100% + música 15%)
+- **Inovação de legendas:** Em vez de FFmpeg "queimar" texto (feio), cria uma **página HTML invisível** com CSS animado (bounce/pop estilo CapCut), grava via Playwright, e sobrepõe via chroma key no FFmpeg
+- Output final: `final_output.mp4` em 1080x1920 (TikTok ready)
+
+---
+
+## 🤖 Agentes de Suporte
+
+Pasta `.agents.contudo/agente-conteudo-referencia-skill/`:
+
+| Arquivo | Função |
+|---|---|
+| `Skiil-conteudo.md` | Skill do agente de produção de conteúdo |
+| `skiil-maneger-orquestrador.md` | Skill do agente orquestrador do fluxo |
+| `fluxograma_operacao_bpmn.drawio` | BPMN visual do fluxo operacional |
+| `generate_native_drawio.py` | Script para gerar diagramas drawio nativos |
+
+---
+
+## 🔌 Integrações e APIs
+
+| Serviço | Uso | Custo |
+|---|---|---|
+| **OpenRouter** | Geração de roteiro (Llama 3.3 70B) | Gratuito |
+| **Supabase** | Banco de dados: virais + B-Roll cache | Gratuito (tier) |
+| **Pexels API** | Clipes de B-Roll verticais | Gratuito |
+| **Pixabay Music** | Música de fundo dark cinematic | Gratuito |
+| **Kokoro TTS** | Voz narração (local) | Gratuito |
+| **ElevenLabs** | Voz narração (cloud, alta qualidade) | Pago (opcional) |
+| **Whisper** | STT local + timestamps | Gratuito (open-source) |
+| **Playwright** | Scraping TikTok + render legendas CSS | Gratuito |
+| **FFmpeg** | Montagem final de vídeo | Gratuito |
+
+---
+
+## 📁 Estrutura de Arquivos (V2)
+
+```
+criação de conteudo/
+├── server.py                      # Servidor Flask + Orquestrador de rotas
+├── .env                           # Chaves de API (NÃO versionar!)
+├── requirements.txt
+├── modules/
+│   ├── module0_hunter.py          # Viral Hunter (TikTok scraping)
+│   ├── script_generator.py        # Módulo 1 - Roteiro
+│   ├── tts.py                     # Módulo 2 - Voz
+│   ├── stt.py                     # Módulo 3 - Timestamps
+│   ├── media_collector.py         # Módulo 4 - B-Roll
+│   ├── video_assembler.py         # Módulo 5 - Montagem
+│   └── templates/
+│       └── subtitles.html         # HTML/CSS das legendas animadas
+├── output/                        # Artefatos gerados
+│   ├── roteiro.json
+│   ├── narration.mp3
+│   ├── timestamps.json
+│   ├── clips/
+│   ├── background.mp3
+│   ├── subtitles.srt
+│   └── final_output.mp4
+├── plan fluxo dark/               # Documentação, planos e diagramas
+│   ├── dark_video_pipeline_plan.md
+│   ├── PLANO_EXECUCAO_EXTERNA.md  # 🆕 Deploy em máquina externa
+│   ├── fluxo_pipeline_visual.md   # 🆕 Diagrama Mermaid oficial V2
+│   └── dark_video_pipeline.drawio
+├── .agents.contudo/               # Skills dos agentes IA
+└── openrouter/                    # PDFs de referência das APIs
+```
+
+---
+
+## 🚀 Como Instalar e Rodar (Deploy Externo)
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/marco101aurelio-a11y/cria-ao-de-conteudo
+cd cria-ao-de-conteudo
+
+# 2. Crie o ambiente virtual
+python3 -m venv venv
+venv\Scripts\activate   # Windows
+# source venv/bin/activate  # Linux/Mac
+
+# 3. Instale as dependências
+pip install flask requests python-dotenv supabase openai-whisper playwright pydub
+
+# 4. Instale o navegador para Playwright (Módulos 0 e 5)
+playwright install chromium
+
+# 5. Configure o .env com suas chaves (ver seção abaixo)
+
+# 6. Suba o servidor
+python server.py
+
+# 7. Execute o pipeline completo
+curl -X POST http://localhost:5000/api/run_pipeline
+```
+
+---
+
+## 📊 Estado Atual do Projeto
+
+> [!IMPORTANT]
+> O projeto está na **fase de planejamento V2**. Documentação completa, diagramas BPMN e plano de execução externa definidos. O código dos módulos **ainda não foi implementado**.
+
+| Módulo | Status |
+|---|---|
+| Módulo 0 (Viral Hunter) | 📋 Planejado — inovação nova |
+| Módulo 1 (Roteiro) | 📋 Spec completa definida |
+| Módulo 2 (TTS) | 📋 Spec completa — aguarda escolha Kokoro vs ElevenLabs |
+| Módulo 3 (STT/Whisper) | 📋 Spec completa |
+| Módulo 4 (B-Roll + Cache) | 📋 Planejado — inovação Supabase |
+| Módulo 5 (Legendas CSS) | 📋 Planejado — inovação principal |
+
+---
+
+## ⚠️ Decisões em Aberto
+
+1. **Voz:** Kokoro TTS (local, gratuita) ou ElevenLabs (paga, qualidade superior)?
+2. **Supabase:** Confirmar credenciais e tabelas a criar (`viral_references`, `broll_library`)
+3. **GPU:** Whisper roda em CPU (lento) ou CUDA (rápido)? Verificar hardware disponível
+4. **Idioma:** Conteúdo 100% PT-BR confirmado?
+5. **Nicho inicial:** Negócios/Marketing confirmado como foco?

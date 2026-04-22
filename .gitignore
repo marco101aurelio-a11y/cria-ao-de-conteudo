@@ -1,10 +1,11 @@
 # Dark Video Pipeline — .gitignore
 
 # Chaves de API (NUNCA enviar para o GitHub!)
+backend/.env
 .env
 
 # Arquivos gerados pelo pipeline (muito pesados para o Git)
-output/
+backend/output/
 *.mp3
 *.mp4
 *.wav

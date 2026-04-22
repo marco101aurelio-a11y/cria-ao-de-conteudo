@@ -1,0 +1,56 @@
+# Plano de Implementação Master: Backend Local (Dark Video Pipeline)
+
+Com base nas suas dúvidas e com a liberdade criativa para inovar em código, refatoramos a arquitetura para ir muito além do que o projeto inicial "plan fluxo dark" propunha. Transformamos um "gerador passivo" em um **Ecossistema Ativo**.
+
+Sua dúvida sobre *de onde vêm as informações* e *como inovar no Módulo 4 e 5* moldou esta nova topologia:
+
+## 1. Inovações Arquiteturais Injetadas
+
+### A Origem dos Dados (O Novo MÓDULO 0)
+Respondendo à sua pergunta 1: O Módulo 1 gerava um vídeo a partir de um "Tema" digitado na mão. Para o *Agente de Conteúdo* funcionar, ele precisa de inteligência viral.
+* **Inovação [Módulo 0 - Viral Hunter]:** Criaremos um script Python autônomo que usa as APIs não-oficiais do TikTok (ex: Playwright/Selenium ou `TikTokApi`).
+* Ele varre o nicho (Negócios/Marketing), baixa os vídeos com +100k views, envia o áudio ao Whisper Local para obter a **Transcrição** e salva tudo no **Supabase** (`viral_references`).
+* **A Conexão Módulo 0 -> Módulo 1:** O Módulo 1 não recebe mais um "tema". Ele consulta o Supabase, pega a transcrição de um vídeo que já viralizou, e envia para o OpenRouter (Llama 3.3) com a instrução: *"Reescreva essa transcrição viral usando nosso Framework Staage (Hook + Promessa + Prova + CTA), mantendo o ângulo dramático de negócios"*.
+
+### O Banco de Vídeos B-Roll (MÓDULO 4)
+Respondendo à sua pergunta 1.1: O Módulo 4 puxa vídeos do Pexels de forma meio "burra" (pesquisa por palavra-chave e pega o que vier).
+* **Inovação [Módulo 4 - Smart Media Vault]:** Toda vez que baixarmos um vídeo do Pexels que ficar bom, catalogaremos no **Supabase** (tabela `broll_library`), criando um Banco de Dados próprio de Cenas Dark.
+* Com o tempo, se o Pexels falhar na busca, a IA olhará para o próprio banco do Supabase e reutilizará nossas melhores cenas que já sabemos ter alta retenção. Não dependemos se a API do Pexels cair.
+
+### Legendas Estilo CapCut no Módulo 5 (A Grande Inovação)
+Respondendo à sua pergunta 1.2: O Módulo 5 (Renderização) tinha opções ruins: FFmpeg produz legendas feias e estéticas limitadas, enquanto OpenCV demora horas.
+* **Inovação [Legendas via CSS/HTML]:** Vamos inovar completamente. Em vez de queimar CPU processando fontes em vídeo de forma rudimentar, criaremos uma página **HTML invisível**. Usaremos CSS moderno para fazer as palavras "pularem" (bounce/pop) igual ao CapCut, sincronizadas pelo nosso JSON.
+* O Python usará automação (Playwright) para abrir essa página HTML com fundo verde (Chroma Key) ou Alpha, gravar a animação fluida por 30 segundos, e depois o FFmpeg só precisa sobrepor esse vídeo transparente em cima das imagens. Teremos legendas de nível TikToker Profissional processadas em segundos!
+
+---
+
+## 2. Proposed Changes (Arquitetura de Diretórios)
+
+### [NEW] [modules/module0_hunter.py](file:///modules/module0_hunter.py)
+Script responsável pelo web-scraping automático das trends do TikTok e o salvamento ordenado no banco **Supabase** (que atuará como nosso cérebro de referências virais).
+
+### [NEW] [modules/script_generator.py](file:///modules/script_generator.py)
+Alteração profunda na chamada da LLM via OpenRouter. A injeção da sua **Regra Geral e Método Staage** será hardcoded no *System Prompt*, extraindo dados do Módulo 0.
+
+### [NEW] [modules/tts.py](file:///modules/tts.py) & [modules/stt.py](file:///modules/stt.py)
+Motores de voz (Kokoro/ElevenLabs) e timestamp (Whisper). Roda 100% na máquina.
+
+### [NEW] [modules/media_collector.py](file:///modules/media_collector.py)
+Busca inteligente no Pexels e cache dos melhores clipes no `Supabase` para reaproveitamento e padronização da marca (Sua Empresa).
+
+### [NEW] [modules/video_assembler.py](file:///modules/video_assembler.py)
+O núcleo inovador do FFmpeg misturado com Playwright para injeção de legendas CSS-based animadas.
+
+---
+
+## 3. User Review Required
+
+> [!CAUTION]
+> **Acesso ao Supabase e Playwright**
+> Para eu executar essa inovação do Módulo 0 e do CSS Módulo 5, precisarei instalar dependências locais na sua máquina via Pip (`pip install playwright supabase`). Posso prosseguir com a instalação e inicialização do projeto em código agora mesmo?
+
+## 4. Verification Plan
+
+1. Iniciaremos codificando e testando o **Módulo 1** chamando o OpenRouter para validar que o estilo de roteiro "Negócios" sai no formato exato que a Regra Staage manda.
+2. Em seguida, atacaremos a inovação do Módulo 5. Faremos uma prova de conceito gravando um vídeo de 10 segundos para você aprovar o visual das legendas pulando em HTML/CSS.
+3. Montaremos o fluxo Flask.
