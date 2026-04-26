@@ -34,6 +34,13 @@ SYSTEM_PROMPT = """
 Você é um roteirista especializado em dark videos virais para TikTok e Reels.
 Seu estilo segue o Framework Staage: Hook dramático + Promessa + Prova + CTA.
 
+Regra de Ouro (Humanização, Coesão e Retenção Psicológica): 
+1. Fluidez Narrativa (MUITO IMPORTANTE): O texto de todas as narrações juntas deve formar uma única história coesa, lógica e contínua. Uma fala deve se conectar perfeitamente com a próxima. Não use jargões repetitivos ou frases desconexas (não "fale coisa com coisa").
+2. Tom de Especialista Revelador: A NARRACAO deve soar como um insider da indústria conversando naturalmente com o espectador.
+3. Sofisticação e Naturalidade: Elimine qualquer gíria forçada ou estrutura robótica. A linguagem deve ser inteligente e conversacional.
+4. Engenharia de Pausas: Use vírgulas e pontos finais para ditar o ritmo natural. Use reticências (...) APENAS para pausas de grande impacto (máximo 1 ou 2 vezes). O excesso de reticências confunde o TTS e quebra a fluidez da voz.
+5. Cadência: Vá direto ao ponto. Uma frase deve puxar a outra.
+
 Regras obrigatórias:
 - Responda SOMENTE com um JSON válido, sem texto adicional e sem markdown.
 - O JSON deve seguir exatamente este schema:
@@ -41,112 +48,166 @@ Regras obrigatórias:
 {
   "title": "string (título do vídeo)",
   "blocks": [
-    { "type": "NARRACAO", "text": "string (máximo 2 frases curtas, tom dramático)" },
+    { "type": "NARRACAO", "text": "string (texto contínuo e fluido)" },
     { "type": "VISUAL",   "keyword": "string (palavra-chave em inglês para busca de vídeo stock)" }
   ]
 }
 
-Estrutura narrativa obrigatória:
-1. Bloco NARRACAO: Hook com dado surpreendente ou pergunta provocativa
+Estrutura narrativa fluida (mantenha a conexão lógica entre os blocos NARRACAO!):
+1. Bloco NARRACAO: Hook (Gancho) focado em uma revelação surpreendente, direto ao ponto.
 2. Bloco VISUAL: cena que reforça o gancho
-3. Bloco NARRACAO: Promessa — o que o espectador vai descobrir
-4. Bloco VISUAL: cena de tensão ou mistério
-5. Bloco NARRACAO: Prova — dado, história ou reviravolta
+3. Bloco NARRACAO: Desenvolvimento lógico que explica o gancho de forma fluida (continuando a frase anterior).
+4. Bloco VISUAL: cena de desenvolvimento
+5. Bloco NARRACAO: Evidência ou dado que comprove o que foi dito, sem quebrar o raciocínio.
 6. Bloco VISUAL: cena de impacto
-7. Bloco NARRACAO: Segundo nível de revelação (plot twist)
-8. Bloco VISUAL: cena emocional
-9. Bloco NARRACAO: Lição de moral ou insight de negócios
+7. Bloco NARRACAO: O "grande detalhe" ou twist que amarra tudo.
+8. Bloco VISUAL: cena reflexiva
+9. Bloco NARRACAO: Conclusão rápida do pensamento.
 10. Bloco VISUAL: cena de resolução
-11. Bloco NARRACAO: CTA — convite sutil para seguir ou comentar
+11. Bloco NARRACAO: CTA rápido e natural, fechando a história orgânicamente.
 12. Bloco VISUAL: cena final marcante
 
 Regras de estilo:
-- Tom: narrativo, dramático, insider — como se estivesse revelando um segredo
-- Cada NARRACAO: máximo 2 frases curtas (30-50 palavras no total)
-- Cada VISUAL: 1 a 3 palavras em inglês (ex: "dark office", "money rain", "city night")
+- Tom: natural, lógico e sem cortes abruptos. 
+- Cada NARRACAO: deve ser a continuação exata da NARRACAO anterior. Se lermos todas as narrações em sequência, tem que soar como um texto de locução perfeito.
+- Cada VISUAL: 2 a 4 palavras em inglês. MUITO IMPORTANTE: A palavra-chave DEVE refletir o contexto histórico ou temático da fala. Se a fala for sobre o passado (ex: século 20), inclua modificadores como "vintage", "black and white", ou "historical". Se for futuro, "futuristic". Seja literal e descritivo (ex: "vintage city black and white", "business team", "laptop working"). EVITE conceitos abstratos ou filosóficos.
 - Total de blocos: entre 10 e 14
-- NÃO use markdown, NÃO use blocos de código — apenas o JSON puro
+- NÃO use markdown, NÃO use blocos de código — apenas o JSON puro.
 """.strip()
 
 
 def generate_script(tema: str) -> dict:
     """
-    Gera um roteiro viral a partir de um tema.
-
-    Args:
-        tema: O assunto do vídeo (ex: "O segredo que os milionários escondem")
-
-    Returns:
-        dict com 'title' e 'blocks' — também salvo em output/roteiro.json
+    Gera um roteiro viral a partir de um tema com sistema de 3 camadas de Fallback:
+    1. OpenRouter
+    2. Google AI Studio (Gemini 1.5 Flash)
+    3. Antigravity (Aviso visual para o usuário pedir no chat)
     """
+    raw_content = None
 
-    if not OPENROUTER_API_KEY:
-        raise ValueError("OPENROUTER_API_KEY não encontrada no .env")
-
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type":  "application/json",
-        "HTTP-Referer":  "https://dark-video-pipeline.local",
-        "X-Title":       "Dark Video Pipeline V2",
-    }
-
-    # Tenta cada modelo da lista — se der 429 passa pro próximo
-    for modelo in MODELS_FALLBACK:
-        print(f"[Módulo 1] Tentando modelo: {modelo}")
-
-        payload = {
-            "model": modelo,
-            "temperature": 0.7,
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user",   "content": f"Crie um roteiro dark video sobre: {tema}"},
-            ],
+    # ==========================================
+    # CAMADA 1: OPENROUTER
+    # ==========================================
+    if OPENROUTER_API_KEY and OPENROUTER_API_KEY.startswith("sk-or"):
+        headers = {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type":  "application/json",
+            "HTTP-Referer":  "https://dark-video-pipeline.local",
+            "X-Title":       "Dark Video Pipeline V2",
         }
 
+        for modelo in MODELS_FALLBACK:
+            print(f"[Módulo 1] Tentando OpenRouter ({modelo})...")
+            payload = {
+                "model": modelo,
+                "temperature": 0.7,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user",   "content": f"Crie um roteiro dark video sobre: {tema}"},
+                ],
+            }
+
+            try:
+                response = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=60)
+
+                if response.status_code == 401:
+                    print(f"[Módulo 1] [ERRO] Chave OpenRouter inválida (Erro 401)!")
+                    break # Pula para a próxima API
+
+                if response.status_code in [400, 404, 429]:
+                    print(f"[Módulo 1] Modelo {modelo} falhou (Código {response.status_code}). Tentando próximo...")
+                    continue
+
+                response.raise_for_status()
+                raw_content = response.json()["choices"][0]["message"]["content"].strip()
+                print(f"[Módulo 1] Roteiro gerado com sucesso via OpenRouter ({modelo})!")
+                break # Sucesso, sai do loop
+
+            except Exception as e:
+                print(f"[Módulo 1] Falha de conexão no OpenRouter: {e}")
+                continue
+    else:
+        print("[Módulo 1] Chave OpenRouter ausente ou inválida. Pulando para Camada 2...")
+
+    # ==========================================
+    # CAMADA 2: GOOGLE AI STUDIO (GEMINI)
+    # ==========================================
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    if not raw_content and GEMINI_API_KEY:
+        print("\n[Módulo 1] Iniciando Camada 2: Google AI Studio (gemini-1.5-flash)...")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+        
+        # O Gemini requer que o texto seja passado como texto normal
+        prompt_completo = f"{SYSTEM_PROMPT}\n\nCrie um roteiro dark video sobre: {tema}"
+        
+        payload = {
+            "contents": [{"parts": [{"text": prompt_completo}]}],
+            "generationConfig": {"temperature": 0.7}
+        }
+        
         try:
-            response = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=60)
+            response = requests.post(url, json=payload, timeout=60)
+            if response.status_code == 200:
+                raw_content = response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                print(f"[Módulo 1] Roteiro gerado com sucesso via Google AI Studio!")
+            else:
+                print(f"[Módulo 1] Google AI Studio falhou. Código: {response.status_code}")
+                print(f"[Módulo 1] Detalhe: {response.text}")
+        except Exception as e:
+            print(f"[Módulo 1] Falha de conexão no Google AI Studio: {e}")
+    elif not raw_content:
+        print("[Módulo 1] Chave GEMINI_API_KEY ausente. Pulando para Camada 3...")
 
-            if response.status_code == 429:
-                print(f"[Módulo 1] Modelo {modelo} com limite atingido (429). Tentando proximo...")
-                continue
+    # ==========================================
+    # CAMADA 3: ANTIGRAVITY (FALLBACK FINAL)
+    # ==========================================
+    if not raw_content:
+        print("\n" + "="*70)
+        print("🚨 [ALERTA VERMELHO] TODAS AS APIs DE ROTEIRO FALHARAM 🚨")
+        print("="*70)
+        print("1. O OpenRouter falhou (chave inválida, limite estourado ou fora do ar).")
+        print("2. O Google AI Studio falhou (ou a chave não foi configurada).")
+        print("\n👉 SOLUÇÃO DE EMERGÊNCIA (A Rota Antigravity 🤭):")
+        print("   Copie o seu tema e peça para mim (sua IA) aqui mesmo no chat:")
+        print(f"   'Antigravity, crie um roteiro JSON sobre: {tema}'")
+        print("   ")
+        print("   Depois, cole a resposta manualmente no arquivo: output/roteiro.json")
+        print("   E rode o resto do pipeline! A gente não para nunca.")
+        print("="*70 + "\n")
 
-            if response.status_code == 404:
-                print(f"[Módulo 1] Modelo {modelo} nao encontrado (404). Tentando proximo...")
-                continue
+        # Fallback Automático Antigravity
+        if os.path.exists(OUTPUT_PATH):
+            print("🚀 Roteiro manual detectado! Lendo o arquivo existente em output/roteiro.json...")
+            with open(OUTPUT_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
 
-            response.raise_for_status()
+        raise RuntimeError("Geração de Roteiro falhou. Leia as instruções acima.")
 
-            raw_content = response.json()["choices"][0]["message"]["content"].strip()
+    # ==========================================
+    # PROCESSAMENTO FINAL DO JSON
+    # ==========================================
+    try:
+        # Remove possíveis blocos de markdown (```json ... ```)
+        if raw_content.startswith("```"):
+            raw_content = raw_content.split("```")[1]
+            if raw_content.startswith("json"):
+                raw_content = raw_content[4:]
 
-            # Remove possíveis blocos de markdown (```json ... ```)
-            if raw_content.startswith("```"):
-                raw_content = raw_content.split("```")[1]
-                if raw_content.startswith("json"):
-                    raw_content = raw_content[4:]
+        roteiro = json.loads(raw_content)
 
-            roteiro = json.loads(raw_content)
+        # Validação mínima
+        assert "title"  in roteiro, "Campo 'title' ausente"
+        assert "blocks" in roteiro, "Campo 'blocks' ausente"
+        assert len(roteiro["blocks"]) >= 8, f"Poucos blocos: {len(roteiro['blocks'])}"
 
-            # Validação mínima
-            assert "title"  in roteiro, "Campo 'title' ausente"
-            assert "blocks" in roteiro, "Campo 'blocks' ausente"
-            assert len(roteiro["blocks"]) >= 8, f"Poucos blocos: {len(roteiro['blocks'])}"
+        # Salva o resultado em output/roteiro.json
+        os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+        with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+            json.dump(roteiro, f, ensure_ascii=False, indent=2)
 
-            # Validação da alternância NARRACAO / VISUAL
-            tipos = [b["type"] for b in roteiro["blocks"]]
-            for i in range(len(tipos) - 1):
-                assert tipos[i] != tipos[i + 1], f"Blocos do mesmo tipo em sequencia na posicao {i}"
+        print(f"[Módulo 1] Roteiro salvo em: {OUTPUT_PATH}")
+        return roteiro
 
-            # Salva o resultado em output/roteiro.json
-            os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-            with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
-                json.dump(roteiro, f, ensure_ascii=False, indent=2)
-
-            print(f"[Módulo 1] Roteiro gerado com {modelo}! {len(roteiro['blocks'])} blocos.")
-            print(f"[Módulo 1] Salvo em: {OUTPUT_PATH}")
-            return roteiro
-
-        except (json.JSONDecodeError, AssertionError, KeyError) as e:
-            print(f"[Módulo 1] Resposta invalida do modelo {modelo}: {e}")
-            continue
-
-    raise RuntimeError("[Módulo 1] Todos os modelos falharam. Verifique sua chave OpenRouter.")
+    except Exception as e:
+        print(f"[Módulo 1] Erro fatal ao processar o JSON gerado pela IA: {e}")
+        raise RuntimeError("O JSON gerado pela IA é inválido.")

@@ -33,12 +33,15 @@ async def async_generate_audio(roteiro_data: dict) -> str:
             # Removemos quebras de linha para a fala ficar fluida
             texto = bloco.get("text", "").replace("\n", " ").strip()
             if texto:
+                # Garante que o bloco termine com pontuação para o TTS fazer a pausa correta
+                if texto[-1] not in ".!?,;...":
+                    texto += "."
                 falas.append(texto)
     
     if not falas:
         raise ValueError("Nenhum bloco 'NARRACAO' encontrado no roteiro.")
 
-    # Junta todas as falas com uma pausa (ponto final garante a respiração do bot)
+    # Junta todas as falas
     texto_completo = " ".join(falas)
     
     print(f"[Módulo 2] Texto final montado ({len(texto_completo)} caracteres).")

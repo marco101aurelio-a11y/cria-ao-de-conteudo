@@ -1,4 +1,4 @@
-"""
+vamo"""
 Dark Video Pipeline V2 — Servidor Flask Principal
 Orquestrador de todos os módulos via endpoints REST.
 
@@ -101,12 +101,13 @@ def module2_generate_audio():
 @app.route("/api/module3/generate_timestamps", methods=["POST"])
 def module3_generate_timestamps():
     try:
-        from modules.stt import generate_timestamps
+        from modules.stt import transcribe, build_srt
         audio_path = "output/narration.mp3"
         if not os.path.exists(audio_path):
             return jsonify({"status": "error", "msg": "narration.mp3 não encontrado. Rode o Módulo 2 primeiro."}), 400
-        result = generate_timestamps(audio_path)
-        return jsonify({"status": "ok", "result": result})
+        result = transcribe()
+        build_srt()
+        return jsonify({"status": "ok", "result": "Timestamps e SRT gerados via Patch V1"})
     except ImportError:
         return jsonify({"status": "not_implemented", "msg": "Módulo 3 ainda não foi criado. Aguarde o Sprint 4."}), 501
     except Exception as e:
@@ -119,13 +120,14 @@ def module3_generate_timestamps():
 @app.route("/api/module4/collect_media", methods=["POST"])
 def module4_collect_media():
     try:
-        from modules.media_collector import collect_media
+        from modules.media_collector import collect_clips, download_background_music
         roteiro_path = "output/roteiro.json"
         if not os.path.exists(roteiro_path):
             return jsonify({"status": "error", "msg": "roteiro.json não encontrado. Rode o Módulo 1 primeiro."}), 400
-        with open(roteiro_path, "r", encoding="utf-8") as f:
-            roteiro = json.load(f)
-        result = collect_media(roteiro)
+        result = collect_clips()
+        download_background_music()
+        with open("output/clip_map.json", "w") as f:
+            json.dump(result, f, indent=2)
         return jsonify({"status": "ok", "result": result})
     except ImportError:
         return jsonify({"status": "not_implemented", "msg": "Módulo 4 ainda não foi criado. Aguarde o Sprint 5."}), 501
@@ -139,11 +141,11 @@ def module4_collect_media():
 @app.route("/api/module5/render_video", methods=["POST"])
 def module5_render_video():
     try:
-        from modules.video_assembler import render_video
+        from modules.video_assembler import assemble
 
         # Verifica dependências obrigatórias antes de renderizar
         required = ["output/roteiro.json", "output/narration.mp3",
-                    "output/timestamps.json", "output/background.mp3"]
+                    "output/timestamps.json", "output/clip_map.json"]
         for path in required:
             if not os.path.exists(path):
                 return jsonify({
@@ -151,7 +153,7 @@ def module5_render_video():
                     "msg": f"Arquivo '{path}' não encontrado. Execute os módulos anteriores primeiro."
                 }), 400
 
-        result = render_video()
+        result = assemble()
         return jsonify({"status": "ok", "result": result})
     except ImportError:
         return jsonify({"status": "not_implemented", "msg": "Módulo 5 ainda não foi criado. Aguarde o Sprint 6."}), 501
@@ -180,19 +182,23 @@ def run_pipeline():
         log.append("✅ Módulo 2: Áudio gerado")
 
         # M3 — Timestamps
-        from modules.stt import generate_timestamps
-        generate_timestamps("output/narration.mp3")
+        from modules.stt import transcribe, build_srt
+        transcribe()
+        build_srt()
         log.append("✅ Módulo 3: Timestamps gerados")
 
         # M4 — B-Roll
-        from modules.media_collector import collect_media
-        collect_media(roteiro)
+        from modules.media_collector import collect_clips, download_background_music
+        clip_map = collect_clips()
+        download_background_music()
+        with open("output/clip_map.json", "w") as f:
+            json.dump(clip_map, f, indent=2)
         log.append("✅ Módulo 4: Mídia coletada")
 
         # M5 — Vídeo Final
-        from modules.video_assembler import render_video
-        result = render_video()
-        log.append("✅ Módulo 5: Vídeo renderizado")
+        from modules.video_assembler import assemble
+        result = assemble()
+        log.append("✅ Módulo 5: Vídeo renderizado via Patch V1")
 
         return jsonify({"status": "ok", "log": log, "output": result})
 
@@ -208,8 +214,8 @@ def run_pipeline():
 # ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print("=" * 50)
-    print("🎬 Dark Video Pipeline V2")
-    print("   Servidor rodando em http://localhost:5000")
-    print("   Pressione Ctrl+C para parar")
+    print("Dark Video Pipeline V2")
+    print("Servidor rodando em http://localhost:5000")
+    print("Pressione Ctrl+C para parar")
     print("=" * 50)
     app.run(debug=True, port=5000)

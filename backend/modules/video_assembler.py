@@ -1,182 +1,206 @@
 """
-Módulo 5 — Montagem Final (Video Assembler)
-Junta os vídeos (clips), o áudio (narration.mp3) e os timestamps (SRT/ASS)
-usando FFmpeg para gerar o vídeo final 1080x1920 com legendas dinâmicas.
+MÓDULO 5 — Montador de Vídeo
+PATCH v2:
+  FIX 1 — Aceita clip_map.json com múltiplos clips por bloco (cortes internos)
+  FIX 2 — Legenda posicionada no terço inferior (MarginV=200)
+  FIX 3 — FontSize aumentado para 24
 """
 
 import os
 import json
 import subprocess
-import glob
-import math
-
-MODULE_DIR = os.path.dirname(__file__)
-OUTPUT_DIR = os.path.join(MODULE_DIR, "..", "output")
-CLIPS_DIR = os.path.join(OUTPUT_DIR, "clips")
-
-AUDIO_PATH = os.path.join(OUTPUT_DIR, "narration.mp3")
-TIMESTAMPS_PATH = os.path.join(OUTPUT_DIR, "timestamps.json")
-FINAL_VIDEO = os.path.join(OUTPUT_DIR, "final_output.mp4")
-TEMP_VIDEO = os.path.join(OUTPUT_DIR, "temp_no_audio.mp4")
-SUBS_PATH = os.path.join(OUTPUT_DIR, "subtitles.srt")
+from pathlib import Path
 
 
-def get_audio_duration(audio_path):
-    """Obtém a duração do áudio usando ffprobe."""
-    cmd = [
-        "ffprobe", "-v", "error", "-show_entries",
-        "format=duration", "-of",
-        "default=noprint_wrappers=1:nokey=1", audio_path
-    ]
-    try:
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, text=True, check=True)
-        return float(result.stdout.strip())
-    except Exception as e:
-        print(f"[Módulo 5] Erro ao obter duração do áudio: {e}")
-        return 15.0
+OUTPUT_DIR = "output"
+CLIPS_DIR = f"{OUTPUT_DIR}/clips"
+CLIP_MAP = f"{OUTPUT_DIR}/clip_map.json"
+TIMESTAMPS = f"{OUTPUT_DIR}/timestamps.json"
+NARRATION = f"{OUTPUT_DIR}/narration.mp3"
+BACKGROUND = f"{OUTPUT_DIR}/background.mp3"
+SRT = f"{OUTPUT_DIR}/subtitles.srt"  # Mantido caso precise de fallback, mas usaremos ASS
+ASS = f"{OUTPUT_DIR}/subtitles.ass"
+FINAL = f"{OUTPUT_DIR}/final_output.mp4"
+RESOLUTION = "1080:1920"
+
+# Removido SUBTITLE_STYLE pois o estilo agora vem embutido no arquivo .ass
+
+def run(cmd: list, label: str = "") -> None:
+    """Executa comando ffmpeg e lança erro se falhar."""
+    print(f"[M5] {label}..." if label else f"[M5] {' '.join(cmd[:4])}...")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"[ERRO] {label}\n{result.stderr}")
+        raise RuntimeError(f"FFmpeg falhou em: {label}")
 
 
-def format_srt_time(seconds):
-    """Formata segundos para o formato do SRT (HH:MM:SS,mmm)."""
-    hrs = int(seconds // 3600)
-    mins = int((seconds % 3600) // 60)
-    secs = int(seconds % 60)
-    msecs = int(round((seconds - int(seconds)) * 1000))
-    return f"{hrs:02d}:{mins:02d}:{secs:02d},{msecs:03d}"
+def load_clip_map() -> dict:
+    with open(CLIP_MAP, "r") as f:
+        return json.load(f)
 
 
-def create_dynamic_srt():
+def load_timestamps() -> list:
+    with open(TIMESTAMPS, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_block_durations(roteiro_path: str = "output/roteiro.json",
+                         timestamps: list = None) -> dict:
     """
-    Cria um arquivo SRT a partir do timestamps.json.
-    Estilo 'Hormozi': exibe 1 a 3 palavras por vez no centro da tela.
+    Calcula a duração de áudio de cada bloco NARRACAO
+    usando os timestamps gerados pelo Whisper.
+    Retorna: { bloco_visual_index: duracao_segundos }
+    
+    Lógica: cada bloco VISUAL corresponde ao bloco NARRACAO imediatamente anterior.
+    A duração do NARRACAO é mapeada nos timestamps por posição no texto.
     """
-    if not os.path.exists(TIMESTAMPS_PATH):
-        print("[Módulo 5] timestamps.json não encontrado.")
-        return False
+    with open(roteiro_path, "r", encoding="utf-8") as f:
+        roteiro = json.load(f)
 
-    with open(TIMESTAMPS_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    blocks = roteiro.get("blocks", [])
+    total_audio_duration = timestamps[-1]["end"] if timestamps else 30.0
 
-    words = data.get("words", [])
-    if not words:
-        print("[Módulo 5] Nenhuma palavra encontrada nos timestamps.")
-        return False
+    # Mapeia blocos NARRACAO e sua proporção do texto total
+    narration_blocks = [b for b in blocks if b["type"] == "NARRACAO"]
+    visual_blocks_indices = [i for i, b in enumerate(blocks) if b["type"] == "VISUAL"]
 
-    with open(SUBS_PATH, "w", encoding="utf-8") as f:
-        for i, w in enumerate(words):
-            start = w["start"]
-            end = w["end"]
-            
-            # Se a palavra for muito curta, dá um padding minimo para não piscar
-            if end - start < 0.1:
-                end = start + 0.1
-            
-            # Formata a palavra atual em amarelo e MAIÚSCULA
-            word_text = w["word"].upper()
-            
-            f.write(f"{i+1}\n")
-            f.write(f"{format_srt_time(start)} --> {format_srt_time(end)}\n")
-            f.write(f"<font color=\"#FFD700\"><b>{word_text}</b></font>\n\n")
+    total_chars = sum(len(b["text"]) for b in narration_blocks)
+    if total_chars == 0:
+        total_chars = 1
 
-    print(f"[Módulo 5] Legendas dinâmicas (SRT) geradas em: {SUBS_PATH}")
-    return True
+    # Distribui a duração proporcional ao tamanho do texto de cada bloco
+    durations = {}
+    for vi, block_idx in enumerate(visual_blocks_indices):
+        if vi < len(narration_blocks):
+            narr = narration_blocks[vi]
+            proportion = len(narr["text"]) / total_chars
+            dur = total_audio_duration * proportion
+            # Removemos o limite máximo de 15s para não cortar o final do vídeo (o áudio ficava maior que o vídeo)
+            durations[str(block_idx)] = max(3.0, dur)
+        else:
+            durations[str(block_idx)] = 5.0
+
+    return durations
 
 
-def render_video():
+def trim_and_scale_clip(src: str, dest: str, duration: float) -> None:
     """
-    Junta tudo via FFmpeg:
-    1. Redimensiona/corta os clips para 1080x1920
-    2. Concatena os clips
-    3. Adiciona a legenda SRT
-    4. Adiciona a narração MP3
+    Escala clip para 1080x1920 (portrait), faz crop central e corta na duração.
     """
-    if not os.path.exists(AUDIO_PATH):
-        raise FileNotFoundError("Áudio da narração não encontrado.")
+    # O zoompan aplica o efeito Ken Burns (movimento constante de zoom in).
+    # d=1 garante que ele processe vídeo corretamente frame a frame.
+    vf_filters = (
+        f"scale={RESOLUTION}:force_original_aspect_ratio=increase,"
+        f"crop={RESOLUTION},"
+        "zoompan=z='min(zoom+0.0015,1.5)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920,"
+        "fps=30,"
+        "format=yuv420p"
+    )
 
-    # 1. Pega os vídeos baixados
-    clips = sorted(glob.glob(os.path.join(CLIPS_DIR, "*.mp4")))
-    if not clips:
-        raise FileNotFoundError("Nenhum clipe de vídeo encontrado na pasta clips/.")
-
-    duration = get_audio_duration(AUDIO_PATH)
-    clip_duration = duration / len(clips)
-    
-    print(f"[Módulo 5] Duração total: {duration:.2f}s | Cada clipe terá ~{clip_duration:.2f}s")
-    
-    # 2. Cria arquivo list.txt para o ffmpeg concat
-    list_path = os.path.join(OUTPUT_DIR, "list.txt")
-    with open(list_path, "w", encoding="utf-8") as f:
-        for clip in clips:
-            # O path precisa ser absoluto e com barras normais para o ffmpeg
-            safe_path = clip.replace("\\", "/")
-            f.write(f"file '{safe_path}'\n")
-    
-    # 3. Cria as legendas
-    create_dynamic_srt()
-    
-    print("[Módulo 5] Iniciando renderização do vídeo base (FFmpeg)...")
-    
-    # Prepara o filtro de vídeo: Crop 1080x1920, recorta no tempo certo
-    # Como são vários vídeos de tamanhos diferentes, o jeito mais seguro é reencodar tudo pra 1080x1920.
-    
-    # Vamos primeiro concatenar e forçar a resolução usando filter_complex
-    filter_complex = ""
-    for i in range(len(clips)):
-        filter_complex += f"[{i}:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,trim=duration={clip_duration},setpts=PTS-STARTPTS[v{i}];"
-    
-    concat_str = "".join([f"[v{i}]" for i in range(len(clips))])
-    filter_complex += f"{concat_str}concat=n={len(clips)}:v=1:a=0[vout]"
-
-    # Comando para montar o vídeo (sem áudio, sem legenda)
-    inputs = []
-    for clip in clips:
-        inputs.extend(["-i", clip])
-
-    cmd_video = [
-        "ffmpeg", "-y"
-    ] + inputs + [
-        "-filter_complex", filter_complex,
-        "-map", "[vout]",
-        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", "30",
-        TEMP_VIDEO
-    ]
-    
-    subprocess.run(cmd_video, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print("[Módulo 5] Vídeo base renderizado com sucesso.")
-
-    print("[Módulo 5] Adicionando legendas e áudio...")
-    
-    # 4. Adiciona as legendas e o áudio final
-    # Atenção: O ffmpeg no windows exige escaping de path para o filtro de legenda
-    safe_sub_path = SUBS_PATH.replace("\\", "/").replace(":", "\\:")
-    
-    cmd_final = [
+    run([
         "ffmpeg", "-y",
-        "-i", TEMP_VIDEO,
-        "-i", AUDIO_PATH,
-        "-vf", f"subtitles='{safe_sub_path}':force_style='FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H80000000,BorderStyle=3,Outline=3,Shadow=0,MarginV=150,Alignment=2'",
-        "-c:v", "libx264",
-        "-c:a", "aac",
-        "-b:a", "192k",
+        "-stream_loop", "-1",  # Loopa o clip caso ele seja mais curto que a duration requerida
+        "-i", src,
+        "-t", str(duration),
+        "-vf", vf_filters,
+        "-c:v", "libx264", "-crf", "23", "-preset", "fast",
+        "-video_track_timescale", "90000",
+        "-an",  # sem áudio no clip
+        dest,
+    ], label=f"Trim+Scale+Zoom {os.path.basename(src)}")
+
+
+def assemble(roteiro_path: str = "output/roteiro.json") -> str:
+    """
+    Pipeline completo de montagem.
+    PATCH FIX 1: usa clip_map com múltiplos clips por bloco.
+    """
+    import random
+    clip_map = load_clip_map()
+    timestamps = load_timestamps()
+    block_durations = get_block_durations(roteiro_path, timestamps)
+
+    trimmed_dir = f"{OUTPUT_DIR}/trimmed"
+    os.makedirs(trimmed_dir, exist_ok=True)
+
+    # ── PASSO 5.1: Trim e scale de cada clip ─────────────────────────────────
+    all_trimmed = []
+    for block_idx, clips in sorted(clip_map.items(), key=lambda x: int(x[0])):
+        if not clips:
+            continue
+
+        total_block_dur = block_durations.get(block_idx, 5.0)
+        num_clips = len(clips)
+        
+        # Cortes Assimétricos: Em vez de dividir exatamente igual, gera durações orgânicas
+        proportions = [random.uniform(0.7, 1.3) for _ in range(num_clips)]
+        total_prop = sum(proportions)
+        
+        for ci, src_path in enumerate(clips):
+            dest_path = os.path.join(trimmed_dir, f"b{block_idx}_c{ci}_trimmed.mp4")
+            if not os.path.exists(src_path):
+                print(f"[M5] Clip não encontrado: {src_path}, pulando.")
+                continue
+                
+            clip_dur = total_block_dur * (proportions[ci] / total_prop)
+            clip_dur = max(1.5, clip_dur) # mínimo de 1.5s por cena
+            
+            trim_and_scale_clip(src_path, dest_path, clip_dur)
+            all_trimmed.append(dest_path)
+
+    if not all_trimmed:
+        raise RuntimeError("Nenhum clip trimado disponível para montagem.")
+
+    # ── PASSO 5.2: Concatenar todos os clips ─────────────────────────────────
+    concat_list = f"{OUTPUT_DIR}/concat_list.txt"
+    with open(concat_list, "w", encoding="utf-8") as f:
+        for path in all_trimmed:
+            safe_path = os.path.abspath(path).replace("\\", "/")
+            f.write(f"file '{safe_path}'\n")
+
+    video_base = f"{OUTPUT_DIR}/video_base.mp4"
+    run([
+        "ffmpeg", "-y",
+        "-f", "concat", "-safe", "0",
+        "-i", concat_list,
+        "-c", "copy",
+        video_base,
+    ], label="Concatenar clips")
+
+    # ── PASSO 5.3: Mix de áudio (narração + música) ───────────────────────────
+    mixed_audio = f"{OUTPUT_DIR}/mixed_audio.mp3"
+    if os.path.exists(BACKGROUND):
+        run([
+            "ffmpeg", "-y",
+            "-i", NARRATION,
+            "-i", BACKGROUND,
+            "-filter_complex",
+            "[0:a]volume=1.0[a1];[1:a]volume=0.15[a2];[a1][a2]amix=inputs=2:duration=first[aout]",
+            "-map", "[aout]",
+            mixed_audio,
+        ], label="Mix áudio narração+música")
+    else:
+        print("[M5] Música de fundo não encontrada. Usando apenas narração.")
+        import shutil
+        shutil.copy(NARRATION, mixed_audio)
+
+    # ── PASSO 5.4 e 5.5: Render final com legenda dinâmica (.ASS) ────────────
+    ass_safe = ASS.replace("\\", "/")
+
+    run([
+        "ffmpeg", "-y",
+        "-i", video_base,
+        "-i", mixed_audio,
+        "-vf", f"ass={ass_safe}",
+        "-c:v", "libx264", "-crf", "23", "-preset", "fast",
+        "-c:a", "aac", "-b:a", "192k",
         "-shortest",
-        FINAL_VIDEO
-    ]
+        FINAL,
+    ], label="Render final com legendas")
 
-    subprocess.run(cmd_final, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    
-    # Limpeza
-    try:
-        os.remove(TEMP_VIDEO)
-        os.remove(list_path)
-    except:
-        pass
-
-    print(f"[Módulo 5] Sucesso! O video viral esta pronto em: {FINAL_VIDEO}")
-    return {"status": "success", "video_path": FINAL_VIDEO}
+    print(f"\n[M5] VIDEO GERADO: {FINAL}")
+    return FINAL
 
 
 if __name__ == "__main__":
-    try:
-        render_video()
-    except Exception as e:
-        print(f"Erro no Módulo 5: {e}")
+    assemble()

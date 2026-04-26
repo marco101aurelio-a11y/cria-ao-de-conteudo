@@ -1,0 +1,52 @@
+{
+  "tema": "Por que fazer tráfego pago?",
+  "objetivo": "Explicar os benefícios do tráfego pago para pequenos e médios negócios, gerando urgência para começar.",
+  "plataformas_ideais": [
+    "Instagram Reels",
+    "TikTok",
+    "YouTube Shorts"
+  ],
+  "duracao_estimada_segundos": 60,
+  "roteiro": [
+    {
+      "cena": 1,
+      "tempo_estimado": "0:00 - 0:05",
+      "visual": "Apresentador olhando diretamente para a câmera com expressão levemente frustrada. Texto na tela: 'Posta todo dia e não vende?'",
+      "fala": "Você passa horas criando conteúdo, posta todo dia, mas as vendas simplesmente não chegam? O problema não é o seu produto.",
+      "efeitos_sonoros": "Som de disco arranhando ou notificação de erro."
+    },
+    {
+      "cena": 2,
+      "tempo_estimado": "0:05 - 0:15",
+      "visual": "Transição rápida (corte seco). Apresentador com postura confiante. Gráficos de setas subindo aparecem na tela de forma animada.",
+      "fala": "O problema é que depender só do algoritmo orgânico é contar com a sorte. Se você quer previsibilidade e velocidade de vendas, você precisa de Tráfego Pago.",
+      "efeitos_sonoros": "Efeito sonoro de 'swoosh' (vento) na transição."
+    },
+    {
+      "cena": 3,
+      "tempo_estimado": "0:15 - 0:30",
+      "visual": "Apresentador na tela, mas B-roll (cenas de apoio) de um alvo sendo atingido na mosca e alguém segmentando um público no gerenciador de anúncios.",
+      "fala": "No tráfego pago, você não torce para a pessoa certa ver seu post. Você COMPRA a atenção do seu cliente ideal. Você escolhe a cidade, a idade e o que a pessoa gosta de comprar.",
+      "efeitos_sonoros": "Som de clique de mouse, e de uma flecha acertando o alvo na palavra 'COMPRA'."
+    },
+    {
+      "cena": 4,
+      "tempo_estimado": "0:30 - 0:45",
+      "visual": "Apresentador gesticulando com as mãos como se fosse uma balança. Texto na tela: 'Escala e Lucro'.",
+      "fala": "E o maior segredo é a escala. Quando você entende que colocar 10 reais te traz 30 de lucro... o que você faz? Você coloca 100 para trazer 300. É matemática pura, não é mágica.",
+      "efeitos_sonoros": "Som de caixa registradora (ka-ching) discreto."
+    },
+    {
+      "cena": 5,
+      "tempo_estimado": "0:45 - 0:60",
+      "visual": "Apresentador aponta para a tela (em direção a um botão ou link). Texto forte na tela: 'Pare de depender da sorte'.",
+      "fala": "Pare de depender da sorte e assuma o controle do crescimento da sua empresa. Quer aprender a dar os primeiros passos? Clica no link da bio e bora escalar.",
+      "efeitos_sonoros": "Música de fundo atinge o clímax e finaliza com a logo da marca."
+    }
+  ],
+  "dicas_de_producao": [
+    "Mantenha a energia alta o tempo todo para segurar a retenção.",
+    "Faça cortes secos e dinâmicos (remova os respiros na edição).",
+    "Use legendas animadas (estilo Hormozi) ressaltando palavras-chave como 'Orgânico', 'Tráfego Pago' e 'Matemática'."
+  ]
+}
