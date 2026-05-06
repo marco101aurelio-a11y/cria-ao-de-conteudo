@@ -1,0 +1,214 @@
+{
+  "metadata": {
+    "titulo": "O Segredo que as Agências de Tráfego Pago Não Querem que Você Saiba",
+    "tema": "Marketing Digital & Tráfego Pago",
+    "nicho": "Empreendedores e Negócios Digitais",
+    "funil": "Topo de Funil — Consciência do Problema",
+    "formato_primario": "Reels / YouTube Shorts",
+    "formatos_secundarios": ["YouTube (versão longa)", "Carrossel Instagram", "LinkedIn Post"],
+    "duracao_estimada_segundos": 75,
+    "tom": "Revelação / Descoberta — Voz calma mas impactante, pausas dramáticas",
+    "plataformas_alvo": ["Instagram", "YouTube", "TikTok"],
+    "hook_tipo": "Hook de Contraste / Quebra de Padrão",
+    "nivel_consciencia": "Inconsciente do Problema",
+    "versao": "1.0",
+    "data_criacao": "2026-04-27",
+    "skill_referencia": "criacao-conteudo-viral (Método Staage)"
+  },
+
+  "thumbnail": {
+    "prompt_geracao": "Crie uma thumbnail altamente clicável. Fundo escuro com glow laranja intenso. Texto grande: 'VOCÊ ESTÁ QUEIMANDO DINHEIRO?' em branco/laranja. Elemento visual: pilha de dinheiro pegando fogo em um monitor mostrando Meta Ads. Contraste extremo, texto legível em 2 segundos.",
+    "titulo_curto": "DINHEIRO QUEIMANDO",
+    "elemento_visual": "Monitor com painel Meta Ads + dinheiro em chamas",
+    "paleta_cores": ["#FF6B00", "#1A1A2E", "#FFFFFF"],
+    "hierarquia_visual": "Texto no topo → Fogo no centro → URL/Logo pequeno no rodapé"
+  },
+
+  "hooks_variacoes": [
+    {
+      "tipo": "Hook de Contraste / Quebra de Padrão",
+      "texto": "A maioria das pessoas acha que tráfego pago é só apertar um botão e ver dinheiro chegar... Mas 87% dos anunciantes estão queimando budget sem saber."
+    },
+    {
+      "tipo": "Hook de Curiosidade",
+      "texto": "Existe uma métrica escondida dentro do Meta Ads que determina se você vai escalar ou falir — e quase ninguém fala sobre ela."
+    },
+    {
+      "tipo": "Hook de Dor / Problema",
+      "texto": "Se você já subiu um anúncio, olhou para o custo por clique e pensou 'por que isso não converte?'... esse vídeo foi feito pra você."
+    },
+    {
+      "tipo": "Hook de Benefício Escandaloso",
+      "texto": "Com a estratégia certa, você pode reduzir seu custo por aquisição em até 60% sem gastar um centavo a mais de budget."
+    },
+    {
+      "tipo": "Hook de Urgência",
+      "texto": "O algoritmo do Meta mudou nos últimos 90 dias e quem não se adaptou está pagando 3x mais caro pelo mesmo resultado."
+    }
+  ],
+
+  "roteiro": [
+    {
+      "cena": 1,
+      "tempo_inicio": "00:00",
+      "tempo_fim": "00:05",
+      "tipo": "HOOK DE ABERTURA",
+      "visual": {
+        "descricao": "Tela preta com texto aparecendo letra por letra. Fade rápido para um painel real do Meta Ads mostrando CPM alto.",
+        "keywords_broll": ["meta ads dashboard", "facebook ads manager high cost", "digital marketing analytics screen"],
+        "transicao": "hard cut",
+        "efeito": "zoom lento no dashboard"
+      },
+      "audio": {
+        "naracao": "A maioria das pessoas acha que tráfego pago é só apertar um botão e ver dinheiro chegar...",
+        "ritmo": "lento, pausado — gera tensão",
+        "musica_bg": "ambiente tenso, batida suave de suspense",
+        "sfx": "som de teclado digitando"
+      }
+    },
+
+    {
+      "cena": 2,
+      "tempo_inicio": "00:05",
+      "tempo_fim": "00:12",
+      "tipo": "QUEBRA DE PADRÃO — DADO CHOCANTE",
+      "visual": {
+        "descricao": "Corte rápido para gráfico animado mostrando 87% em vermelho. Dinheiro caindo e queimando em slow-motion.",
+        "keywords_broll": ["money burning slow motion", "red chart decline business", "wasted ad budget visualization"],
+        "transicao": "hard cut com flash branco",
+        "efeito": "shake na câmera ao revelar o número"
+      },
+      "audio": {
+        "naracao": "Mas 87% dos anunciantes estão literalmente queimando dinheiro... sem saber por quê.",
+        "ritmo": "acelerado — urgência",
+        "musica_bg": "drop de batida baixa",
+        "sfx": "som de dinheiro caindo, fogo crepitando"
+      }
+    },
+
+    {
+      "cena": 3,
+      "tempo_inicio": "00:12",
+      "tempo_fim": "00:22",
+      "tipo": "IDENTIFICAÇÃO DA DOR",
+      "visual": {
+        "descricao": "Tela dividida: lado esquerdo mostra anunciante frustrado olhando para métricas ruins; lado direito mostra concorrente sorrindo com gráfico subindo.",
+        "keywords_broll": ["frustrated entrepreneur computer", "business owner stressed analytics", "successful digital marketer smiling"],
+        "transicao": "split screen",
+        "efeito": "saturação reduzida no lado ruim, cores vivas no lado bom"
+      },
+      "audio": {
+        "naracao": "Se você já subiu um anúncio... olhou pro CPL... e pensou: 'por que isso não converte?'... Esse vídeo foi feito pra você.",
+        "ritmo": "conversacional, como se falasse diretamente para uma pessoa",
+        "musica_bg": "instrumental suave — momento empático",
+        "sfx": "nenhum"
+      }
+    },
+
+    {
+      "cena": 4,
+      "tempo_inicio": "00:22",
+      "tempo_fim": "00:35",
+      "tipo": "REVELAÇÃO — O PROBLEMA REAL",
+      "visual": {
+        "descricao": "Zoom em um funil de vendas animado. Highlight vermelho piscando na etapa de 'Topo de Funil'. Seta apontando para 'Público Frio'.",
+        "keywords_broll": ["sales funnel animation", "marketing funnel top of funnel", "cold audience targeting digital"],
+        "transicao": "slide lateral",
+        "efeito": "animação de funil sendo construído ao vivo"
+      },
+      "audio": {
+        "naracao": "O erro não está no seu criativo... Não está no seu produto... O problema é que você está tentando vender para quem ainda não sabe que tem um problema. Isso se chama... falar com o público errado, na etapa errada do funil.",
+        "ritmo": "pausas longas após cada ponto — deixa a revelação respirar",
+        "musica_bg": "crescendo suave — tensão aumentando",
+        "sfx": "som de 'ping' ao destacar cada ponto"
+      }
+    },
+
+    {
+      "cena": 5,
+      "tempo_inicio": "00:35",
+      "tempo_fim": "00:50",
+      "tipo": "PROVA & AUTORIDADE",
+      "visual": {
+        "descricao": "Resultados reais de campanha (números em overlay). Gráfico mostrando queda de CPL após otimização de segmentação. Logos do Meta, Google e TikTok Ads aparecem.",
+        "keywords_broll": ["facebook ads results graph", "google ads performance improvement", "marketing roi case study"],
+        "transicao": "dissolve suave",
+        "efeito": "contador animado mostrando redução de custo"
+      },
+      "audio": {
+        "naracao": "Quando você alinha a mensagem certa... com o público certo... na temperatura certa do funil... o custo por aquisição não cai 10%. Cai 60%. Isso não é promessa. É o que os dados mostram campanha após campanha.",
+        "ritmo": "confiante, com autoridade",
+        "musica_bg": "crescendo — sensação de vitória se aproximando",
+        "sfx": "som de notificação de venda"
+      }
+    },
+
+    {
+      "cena": 6,
+      "tempo_inicio": "00:50",
+      "tempo_fim": "00:65",
+      "tipo": "SOLUÇÃO — O FRAMEWORK",
+      "visual": {
+        "descricao": "3 pilares aparecem animados na tela: 1) Público Certo, 2) Criativo Relevante, 3) Oferta Irresistível. Cada pilar tem um ícone minimalista.",
+        "keywords_broll": ["marketing framework three pillars", "digital strategy infographic", "paid traffic optimization chart"],
+        "transicao": "aparecem um a um com animação de slide",
+        "efeito": "glow em cada pilar ao aparecer"
+      },
+      "audio": {
+        "naracao": "O framework que resolve isso tem 3 pilares: Primeiro... o público certo. Segundo... o criativo que fala a língua da dor dele. Terceiro... uma oferta que ele não consegue ignorar. Quando esses três se encontram... o algoritmo trabalha pra você... não contra.",
+        "ritmo": "didático, com pausa entre cada pilar",
+        "musica_bg": "instrumental inspiracional crescendo",
+        "sfx": "som de 'check' a cada pilar revelado"
+      }
+    },
+
+    {
+      "cena": 7,
+      "tempo_inicio": "00:65",
+      "tempo_fim": "00:75",
+      "tipo": "CTA — CHAMADA PARA AÇÃO",
+      "visual": {
+        "descricao": "Fundo com gradiente escuro. Texto centralizado pulsando: 'QUER A ESTRATÉGIA COMPLETA?'. Seta animada apontando para baixo (link na bio).",
+        "keywords_broll": ["call to action screen animated", "subscribe follow notification digital"],
+        "transicao": "fade to dark",
+        "efeito": "pulse na seta — chama atenção para o link"
+      },
+      "audio": {
+        "naracao": "Se você quer o método completo — com exemplos de criativos, estrutura de campanha e o que testar primeiro — o link está na bio. Comenta aqui embaixo a palavra TRÁFEGO e eu te mando direto.",
+        "ritmo": "rápido, energético — urgência final",
+        "musica_bg": "beat energético de encerramento",
+        "sfx": "som de notificação final / 'swoosh'"
+      }
+    }
+  ],
+
+  "copy_complementar": {
+    "legenda_reels": "87% dos anunciantes queimam dinheiro em tráfego pago sem saber por quê. O problema não está no produto, não está no criativo — está em falar com o público errado na etapa errada do funil. Comenta TRÁFEGO aqui embaixo 👇",
+    "hashtags": ["#trafegopago", "#marketingdigital", "#metaads", "#googleads", "#empreendedorismo", "#negociodigital", "#vendasonline", "#growthmarketing"],
+    "cta_comentario": "Comenta TRÁFEGO",
+    "cta_bio": "Link na bio para o método completo",
+    "cta_dms": "Responda Stories com 'TRÁFEGO' para receber o framework"
+  },
+
+  "desdobramentos_multicanal": {
+    "youtube_longo": {
+      "titulo": "Tráfego Pago: O Guia Completo para Parar de Queimar Dinheiro em 2026",
+      "duracao_estimada": "12-18 minutos",
+      "adicionar": ["Tutorial passo a passo no Meta Ads", "Estudo de caso real com print de resultados", "Seção de Q&A sobre segmentação"]
+    },
+    "carrossel_instagram": {
+      "slide_1": "87% dos anunciantes desperdiçam budget. Você é um deles?",
+      "slide_2": "O erro que ninguém fala: público frio + oferta quente = prejuízo",
+      "slide_3": "Os 3 pilares do tráfego que converte",
+      "slide_4": "Pilar 1: Público na temperatura certa do funil",
+      "slide_5": "Pilar 2: Criativo que fala a língua da DOR",
+      "slide_6": "Pilar 3: Oferta que o algoritmo quer distribuir",
+      "slide_7": "Resultado: CPL caindo 60% sem aumentar budget",
+      "slide_8": "CTA: Salva esse carrossel. Você vai precisar."
+    },
+    "linkedin_post": {
+      "abertura": "Após analisar +200 campanhas de tráfego pago, aprendi que o erro mais caro não é o orçamento — é a sequência lógica da comunicação.",
+      "tom": "Profissional / Analítico"
+    }
+  }
+}

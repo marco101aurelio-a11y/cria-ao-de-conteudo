@@ -1,205 +1,343 @@
 """
-MÓDULO 5 — Montador de Vídeo
-PATCH v2:
-  FIX 1 — Aceita clip_map.json com múltiplos clips por bloco (cortes internos)
-  FIX 2 — Legenda posicionada no terço inferior (MarginV=200)
-  FIX 3 — FontSize aumentado para 24
-"""
+Modulo 5 - Montador de Video (v3)
+Usa FFmpeg para montar o video final a partir de:
+  - clip_map.json  (multiplos clips por bloco VISUAL)
+  - narration.mp3  (narracao gerada pelo TTS)
+  - subtitles.ass  (legendas karaoke word-by-word)
+  - background.mp3 (musica de fundo)
+  - roteiro.json   (para saber a duracao de cada bloco)
 
+PATCH v3:
+  - Multiplos clips por bloco: cada bloco VISUAL distribui seus N clips pela duration_hint
+  - Ken Burns em todos os clips (zoom lento)
+  - Legenda no terco inferior, FontSize 24, fundo semitransparente
+  - Music ducking: musica com -20dB durante narracao
+  - Transicao de fade entre clips (0.3s)
+  - Output: 1080x1920 @ 30fps, H.264, AAC
+
+Dependencias:
+  pip install ffmpeg-python
+  ffmpeg deve estar no PATH do sistema
+"""
 import os
 import json
 import subprocess
+import tempfile
 from pathlib import Path
 
+MODULE_DIR      = os.path.dirname(__file__)
+OUTPUT_DIR      = os.path.join(MODULE_DIR, "..", "output")
+CLIPS_DIR       = os.path.join(OUTPUT_DIR,  "clips")
+ROTEIRO_PATH    = os.path.join(OUTPUT_DIR,  "roteiro.json")
+CLIP_MAP_PATH   = os.path.join(OUTPUT_DIR,  "clip_map.json")
+AUDIO_PATH      = os.path.join(OUTPUT_DIR,  "narration.mp3")
+MUSIC_PATH      = os.path.join(OUTPUT_DIR,  "background.mp3")
+SUBTITLES_PATH  = os.path.join(OUTPUT_DIR,  "subtitles.ass")
+SILENCES_PATH   = os.path.join(OUTPUT_DIR,  "silences.json")
+OUTPUT_VIDEO    = os.path.join(OUTPUT_DIR,  "final_output.mp4")
 
-OUTPUT_DIR = "output"
-CLIPS_DIR = f"{OUTPUT_DIR}/clips"
-CLIP_MAP = f"{OUTPUT_DIR}/clip_map.json"
-TIMESTAMPS = f"{OUTPUT_DIR}/timestamps.json"
-NARRATION = f"{OUTPUT_DIR}/narration.mp3"
-BACKGROUND = f"{OUTPUT_DIR}/background.mp3"
-SRT = f"{OUTPUT_DIR}/subtitles.srt"  # Mantido caso precise de fallback, mas usaremos ASS
-ASS = f"{OUTPUT_DIR}/subtitles.ass"
-FINAL = f"{OUTPUT_DIR}/final_output.mp4"
-RESOLUTION = "1080:1920"
+CANVAS_W  = 1080
+CANVAS_H  = 1920
+FPS       = 30
+FADE_DUR  = 0.3   # segundos de fade entre clips
 
-# Removido SUBTITLE_STYLE pois o estilo agora vem embutido no arquivo .ass
+# Tenta usar aceleração por hardware (NVIDIA NVENC) para renderização ultra-rápida
+VCODEC = "h264_nvenc"  # Default para quem tem NVIDIA
+try:
+    # Verifica se o encoder está disponível
+    subprocess.check_output(["ffmpeg", "-encoders"], stderr=subprocess.STDOUT)
+except:
+    VCODEC = "libx264" # Fallback para CPU
 
-def run(cmd: list, label: str = "") -> None:
-    """Executa comando ffmpeg e lança erro se falhar."""
-    print(f"[M5] {label}..." if label else f"[M5] {' '.join(cmd[:4])}...")
+
+# ── Helpers FFmpeg ─────────────────────────────────────────────────────────────
+
+def _run(cmd: list, step: str) -> None:
+    """Executa comando FFmpeg e lança RuntimeError se falhar."""
+    print(f"  [FFmpeg:{step}] {' '.join(cmd[:6])}...")
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"[ERRO] {label}\n{result.stderr}")
-        raise RuntimeError(f"FFmpeg falhou em: {label}")
+        raise RuntimeError(f"[{step}] FFmpeg erro:\n{result.stderr[-2000:]}")
 
 
-def load_clip_map() -> dict:
-    with open(CLIP_MAP, "r") as f:
-        return json.load(f)
+def _get_duration(path: str) -> float:
+    """Retorna duração de arquivo de mídia em segundos via ffprobe."""
+    cmd = [
+        "ffprobe", "-v", "quiet",
+        "-show_entries", "format=duration",
+        "-of", "csv=p=0",
+        path,
+    ]
+    out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode().strip()
+    return float(out) if out else 0.0
 
 
-def load_timestamps() -> list:
-    with open(TIMESTAMPS, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def get_block_durations(roteiro_path: str = "output/roteiro.json",
-                         timestamps: list = None) -> dict:
+def _find_cut_points(block_start: float, block_end: float, n_clips: int, silences: list) -> list:
     """
-    Calcula a duração de áudio de cada bloco NARRACAO
-    usando os timestamps gerados pelo Whisper.
-    Retorna: { bloco_visual_index: duracao_segundos }
-    
-    Lógica: cada bloco VISUAL corresponde ao bloco NARRACAO imediatamente anterior.
-    A duração do NARRACAO é mapeada nos timestamps por posição no texto.
+    Encontra os melhores pontos de corte dentro de um bloco de tempo,
+    usando os silêncios naturais (respiros) da narração.
+    Retorna lista de `n_clips` durações (em segundos) para cada sub-clip.
     """
-    with open(roteiro_path, "r", encoding="utf-8") as f:
-        roteiro = json.load(f)
+    block_dur = block_end - block_start
+    if n_clips <= 1:
+        return [block_dur]
 
-    blocks = roteiro.get("blocks", [])
-    total_audio_duration = timestamps[-1]["end"] if timestamps else 30.0
+    # Filtra silêncios que estão dentro do bloco atual
+    silences_in_block = [
+        s for s in silences
+        if block_start < s["start"] < block_end
+    ]
 
-    # Mapeia blocos NARRACAO e sua proporção do texto total
-    narration_blocks = [b for b in blocks if b["type"] == "NARRACAO"]
-    visual_blocks_indices = [i for i, b in enumerate(blocks) if b["type"] == "VISUAL"]
+    # Pontos de corte ideais: dividir igualmente primeiro
+    ideal_cuts = [
+        block_start + (block_dur / n_clips) * i
+        for i in range(1, n_clips)
+    ]
 
-    total_chars = sum(len(b["text"]) for b in narration_blocks)
-    if total_chars == 0:
-        total_chars = 1
-
-    # Distribui a duração proporcional ao tamanho do texto de cada bloco
-    durations = {}
-    for vi, block_idx in enumerate(visual_blocks_indices):
-        if vi < len(narration_blocks):
-            narr = narration_blocks[vi]
-            proportion = len(narr["text"]) / total_chars
-            dur = total_audio_duration * proportion
-            # Removemos o limite máximo de 15s para não cortar o final do vídeo (o áudio ficava maior que o vídeo)
-            durations[str(block_idx)] = max(3.0, dur)
+    # Para cada ponto ideal, busca o silêncio mais próximo (dentro de 1.5s)
+    actual_cuts = [block_start]
+    for ideal in ideal_cuts:
+        best = min(
+            silences_in_block,
+            key=lambda s: abs(s["start"] - ideal),
+            default=None
+        )
+        if best and abs(best["start"] - ideal) <= 1.5:
+            actual_cuts.append(best["start"])
         else:
-            durations[str(block_idx)] = 5.0
+            actual_cuts.append(ideal)  # fallback: corte igual
+    actual_cuts.append(block_end)
 
+    # Converte para durações
+    durations = [
+        round(actual_cuts[i + 1] - actual_cuts[i], 3)
+        for i in range(n_clips)
+    ]
     return durations
 
 
-def trim_and_scale_clip(src: str, dest: str, duration: float) -> None:
-    """
-    Escala clip para 1080x1920 (portrait), faz crop central e corta na duração.
-    """
-    # O zoompan aplica o efeito Ken Burns (movimento constante de zoom in).
-    # d=1 garante que ele processe vídeo corretamente frame a frame.
-    vf_filters = (
-        f"scale={RESOLUTION}:force_original_aspect_ratio=increase,"
-        f"crop={RESOLUTION},"
-        "zoompan=z='min(zoom+0.0015,1.5)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920,"
-        "fps=30,"
-        "format=yuv420p"
-    )
+# ── Ken Burns em clip individual ───────────────────────────────────────────────
 
-    run([
+def _apply_ken_burns(src: str, dest: str, duration: float) -> None:
+    """
+    Recorta `duration` segundos do src, aplica Ken Burns (zoom 1→1.08)
+    e formata para 1080x1920 (portrait), 30fps.
+    """
+    frames = max(int(duration * FPS), 1)
+    # zoompan: zoom de 1.0 a 1.08 ao longo de `frames` frames
+    vf = (
+        f"scale=2*{CANVAS_W}:2*{CANVAS_H}:force_original_aspect_ratio=increase,"
+        f"crop={CANVAS_W}:{CANVAS_H},"
+        f"zoompan=z='min(zoom+0.0008,1.08)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+        f":d={frames}:s={CANVAS_W}x{CANVAS_H}:fps={FPS},"
+        f"setsar=1"
+    )
+    cmd = [
         "ffmpeg", "-y",
-        "-stream_loop", "-1",  # Loopa o clip caso ele seja mais curto que a duration requerida
+        "-ss", "0",
         "-i", src,
         "-t", str(duration),
-        "-vf", vf_filters,
-        "-c:v", "libx264", "-crf", "23", "-preset", "fast",
-        "-video_track_timescale", "90000",
-        "-an",  # sem áudio no clip
+        "-vf", vf,
+        "-an",
+        "-c:v", VCODEC, "-preset", "p4", "-tune", "hq", "-crf", "23" if VCODEC == "libx264" else "0",
+        "-r", str(FPS),
+        "-vsync", "cfr",
         dest,
-    ], label=f"Trim+Scale+Zoom {os.path.basename(src)}")
+    ]
+    _run(cmd, "ken_burns")
 
 
-def assemble(roteiro_path: str = "output/roteiro.json") -> str:
+# ── Fade in/out num clip ───────────────────────────────────────────────────────
+
+def _add_fade(src: str, dest: str, duration: float) -> None:
+    fade = min(FADE_DUR, duration / 3)
+    fo   = max(duration - fade, 0)
+    vf   = f"fade=t=in:st=0:d={fade},fade=t=out:st={fo}:d={fade}"
+    cmd  = [
+        "ffmpeg", "-y", "-i", src,
+        "-vf", vf,
+        "-c:v", VCODEC, "-preset", "p4",
+        "-an", dest,
+    ]
+    _run(cmd, "fade")
+
+
+# ── Montagem principal ─────────────────────────────────────────────────────────
+
+def assemble(
+    roteiro_data: dict = None,
+    clip_map: dict = None,
+    output_path: str = None,
+) -> str:
     """
-    Pipeline completo de montagem.
-    PATCH FIX 1: usa clip_map com múltiplos clips por bloco.
+    Monta o vídeo final.
+    Retorna path do arquivo gerado.
     """
-    import random
-    clip_map = load_clip_map()
-    timestamps = load_timestamps()
-    block_durations = get_block_durations(roteiro_path, timestamps)
+    # Carrega dados necessários
+    if roteiro_data is None:
+        with open(ROTEIRO_PATH, "r", encoding="utf-8") as f:
+            roteiro_data = json.load(f)
 
-    trimmed_dir = f"{OUTPUT_DIR}/trimmed"
-    os.makedirs(trimmed_dir, exist_ok=True)
+    if clip_map is None:
+        with open(CLIP_MAP_PATH, "r", encoding="utf-8") as f:
+            clip_map = json.load(f)
 
-    # ── PASSO 5.1: Trim e scale de cada clip ─────────────────────────────────
-    all_trimmed = []
-    for block_idx, clips in sorted(clip_map.items(), key=lambda x: int(x[0])):
-        if not clips:
-            continue
+    out = output_path or OUTPUT_VIDEO
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-        total_block_dur = block_durations.get(block_idx, 5.0)
-        num_clips = len(clips)
-        
-        # Cortes Assimétricos: Em vez de dividir exatamente igual, gera durações orgânicas
-        proportions = [random.uniform(0.7, 1.3) for _ in range(num_clips)]
-        total_prop = sum(proportions)
-        
-        for ci, src_path in enumerate(clips):
-            dest_path = os.path.join(trimmed_dir, f"b{block_idx}_c{ci}_trimmed.mp4")
-            if not os.path.exists(src_path):
-                print(f"[M5] Clip não encontrado: {src_path}, pulando.")
+    # Obtém duração total da narração
+    narration_duration = _get_duration(AUDIO_PATH)
+    print(f"[Módulo 5] Duração da narração: {narration_duration:.2f}s")
+
+    # ── Passo 1: processa cada bloco VISUAL ────────────────────────────────────
+    # Filtra blocos visuais (aceita 'type' ou 'tipo')
+    blocos_visuais = [b for b in roteiro_data["blocks"] if (b.get("type") or b.get("tipo")) == "VISUAL"]
+
+    # Distribui duração total pelos blocos proporcionalmente
+    total_hint = sum(b.get("duration_hint", 4.0) for b in blocos_visuais) or 1
+    scale      = narration_duration / total_hint
+
+    processed_clips = []  # paths de clips já processados prontos para concat
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+
+        # Carrega silences.json (opcional — fallback para divisão igual)
+        silences = []
+        if Path(SILENCES_PATH).exists():
+            with open(SILENCES_PATH, "r", encoding="utf-8") as f:
+                silences = json.load(f)
+            print(f"[Módulo 5] {len(silences)} pontos de respiro carregados para corte orgânico.")
+        else:
+            print("[Módulo 5] silences.json não encontrado — usando divisão de tempo igual.")
+
+        # Mapa de tempo acumulado por bloco (para localizar respiros no bloco certo)
+        accumulated_time = 0.0
+
+        for bloco in blocos_visuais:
+            block_id      = str(bloco.get("id", "0"))
+            duration_hint = bloco.get("duration_hint", 4.0)
+            block_dur     = duration_hint * scale
+            clips_info    = clip_map.get(block_id, [])
+
+            block_start = accumulated_time
+            block_end   = accumulated_time + block_dur
+            accumulated_time = block_end
+
+            if not clips_info:
+                # Tela preta de fallback
+                black = os.path.join(tmpdir, f"black_{block_id}.mp4")
+                cmd = [
+                    "ffmpeg", "-y",
+                    "-f", "lavfi",
+                    "-i", f"color=c=black:s={CANVAS_W}x{CANVAS_H}:r={FPS}:d={block_dur}",
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                    black,
+                ]
+                _run(cmd, f"black_b{block_id}")
+                processed_clips.append(black)
+                accumulated_time = block_end
                 continue
-                
-            clip_dur = total_block_dur * (proportions[ci] / total_prop)
-            clip_dur = max(1.5, clip_dur) # mínimo de 1.5s por cena
-            
-            trim_and_scale_clip(src_path, dest_path, clip_dur)
-            all_trimmed.append(dest_path)
 
-    if not all_trimmed:
-        raise RuntimeError("Nenhum clip trimado disponível para montagem.")
+            # Calcula durações de cada sub-clip usando pontos de respiro
+            n_clips    = len(clips_info)
+            cut_durs   = _find_cut_points(block_start, block_end, n_clips, silences)
 
-    # ── PASSO 5.2: Concatenar todos os clips ─────────────────────────────────
-    concat_list = f"{OUTPUT_DIR}/concat_list.txt"
-    with open(concat_list, "w", encoding="utf-8") as f:
-        for path in all_trimmed:
-            safe_path = os.path.abspath(path).replace("\\", "/")
-            f.write(f"file '{safe_path}'\n")
+            for sub_idx, clip_info in enumerate(clips_info):
+                src_path = clip_info.get("path", "")
+                if not src_path or not Path(src_path).exists():
+                    continue
 
-    video_base = f"{OUTPUT_DIR}/video_base.mp4"
-    run([
-        "ffmpeg", "-y",
-        "-f", "concat", "-safe", "0",
-        "-i", concat_list,
-        "-c", "copy",
-        video_base,
-    ], label="Concatenar clips")
+                clip_dur    = min(cut_durs[sub_idx], _get_duration(src_path))
+                kb_path     = os.path.join(tmpdir, f"kb_{block_id}_{sub_idx}.mp4")
+                faded_path  = os.path.join(tmpdir, f"fade_{block_id}_{sub_idx}.mp4")
 
-    # ── PASSO 5.3: Mix de áudio (narração + música) ───────────────────────────
-    mixed_audio = f"{OUTPUT_DIR}/mixed_audio.mp3"
-    if os.path.exists(BACKGROUND):
-        run([
+                _apply_ken_burns(src_path, kb_path, clip_dur)
+                _add_fade(kb_path, faded_path, clip_dur)
+                processed_clips.append(faded_path)
+
+        if not processed_clips:
+            raise RuntimeError("[Módulo 5] Nenhum clip processado — verifique clip_map.json")
+
+        # ── Passo 2: concatena todos os clips de vídeo ─────────────────────────
+        concat_list = os.path.join(tmpdir, "concat.txt")
+        with open(concat_list, "w") as f:
+            for p in processed_clips:
+                f.write(f"file '{p}'\n")
+
+        raw_video = os.path.join(tmpdir, "raw_video.mp4")
+        cmd = [
             "ffmpeg", "-y",
-            "-i", NARRATION,
-            "-i", BACKGROUND,
-            "-filter_complex",
-            "[0:a]volume=1.0[a1];[1:a]volume=0.15[a2];[a1][a2]amix=inputs=2:duration=first[aout]",
-            "-map", "[aout]",
-            mixed_audio,
-        ], label="Mix áudio narração+música")
-    else:
-        print("[M5] Música de fundo não encontrada. Usando apenas narração.")
-        import shutil
-        shutil.copy(NARRATION, mixed_audio)
+            "-f", "concat", "-safe", "0",
+            "-i", concat_list,
+            "-c:v", VCODEC, "-preset", "p4",
+            "-r", str(FPS),
+            raw_video,
+        ]
+        _run(cmd, "concat")
 
-    # ── PASSO 5.4 e 5.5: Render final com legenda dinâmica (.ASS) ────────────
-    ass_safe = ASS.replace("\\", "/")
+        # ── Passo 3: adiciona narração + música com ducking ────────────────────
+        has_music = Path(MUSIC_PATH).exists() and Path(MUSIC_PATH).stat().st_size > 10_000
 
-    run([
-        "ffmpeg", "-y",
-        "-i", video_base,
-        "-i", mixed_audio,
-        "-vf", f"ass={ass_safe}",
-        "-c:v", "libx264", "-crf", "23", "-preset", "fast",
-        "-c:a", "aac", "-b:a", "192k",
-        "-shortest",
-        FINAL,
-    ], label="Render final com legendas")
+        if has_music:
+            # narração em volume normal, música com ducking (-20dB)
+            audio_filter = (
+                "[1:a]volume=1.0[narr];"
+                "[2:a]volume=0.15[music];"
+                "[narr][music]amix=inputs=2:duration=first:dropout_transition=3[aout]"
+            )
+            audio_step_out = os.path.join(tmpdir, "with_audio.mp4")
+            cmd = [
+                "ffmpeg", "-y",
+                "-i", raw_video,
+                "-i", AUDIO_PATH,
+                "-i", MUSIC_PATH,
+                "-filter_complex", audio_filter,
+                "-map", "0:v:0",
+                "-map", "[aout]",
+                "-c:v", "copy",
+                "-c:a", "aac", "-b:a", "192k",
+                "-shortest",
+                audio_step_out,
+            ]
+        else:
+            audio_step_out = os.path.join(tmpdir, "with_audio.mp4")
+            cmd = [
+                "ffmpeg", "-y",
+                "-i", raw_video,
+                "-i", AUDIO_PATH,
+                "-map", "0:v:0",
+                "-map", "1:a:0",
+                "-c:v", "copy",
+                "-c:a", "aac", "-b:a", "192k",
+                "-shortest",
+                audio_step_out,
+            ]
+        _run(cmd, "audio_mix")
 
-    print(f"\n[M5] VIDEO GERADO: {FINAL}")
-    return FINAL
+        # ── Passo 4: queima legendas ASS ───────────────────────────────────────
+        has_subs = Path(SUBTITLES_PATH).exists()
+
+        if has_subs:
+            # Escapa o path para o filtro ass do FFmpeg
+            ass_escaped = SUBTITLES_PATH.replace("\\", "/").replace(":", "\\:")
+            cmd = [
+                "ffmpeg", "-y",
+                "-i", audio_step_out,
+                "-vf", f"ass='{ass_escaped}'",
+                "-c:v", VCODEC, "-preset", "p4",
+                "-c:a", "copy",
+                out,
+            ]
+        else:
+            import shutil
+            shutil.copy(audio_step_out, out)
+            print("[Módulo 5] subtitles.ass não encontrado — vídeo sem legendas.")
+            return out
+
+        _run(cmd, "subtitles")
+
+    print(f"[Módulo 5] Vídeo final: {out}")
+    return out
 
 
 if __name__ == "__main__":

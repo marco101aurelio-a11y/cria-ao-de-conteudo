@@ -33,6 +33,7 @@ def check_env():
 def main():
     parser = argparse.ArgumentParser(description="Pipeline Dark Video com Narração")
     parser.add_argument("--tema", required=True, help="Tema do vídeo")
+    parser.add_argument("--hunter", action="store_true", help="Ativa o Módulo 0 (Viral Hunter) antes do roteiro")
     parser.add_argument("--device", default="cpu", choices=["cpu", "cuda"],
                         help="Device para Whisper STT (default: cpu)")
     parser.add_argument("--tts-engine", default=None, choices=["local", "api"],
@@ -46,11 +47,19 @@ def main():
     os.makedirs("output/clips", exist_ok=True)
 
     print("\n" + "=" * 50)
-    print(f"  DARK VIDEO PIPELINE — v2")
+    print(f"  DARK VIDEO PIPELINE - v3")
     print(f"  Tema: {args.tema}")
     print(f"  TTS:  {os.getenv('TTS_ENGINE', 'local')}")
     print(f"  STT:  whisper ({args.device})")
+    print(f"  Viral Hunter: {'Ativado' if args.hunter else 'Desativado'}")
     print("=" * 50 + "\n")
+
+    # ── MÓDULO 0: Viral Hunter (Opcional) ────────────────────────────────────
+    if args.hunter:
+        print("> MÓDULO 0 - Viral Hunter (Buscando referências no Supabase)...")
+        from modules.module0_hunter import run_hunter
+        run_hunter(niche=args.tema)
+        print("  Varredura do Módulo 0 concluída!\n")
 
     # ── MÓDULO 1: Roteiro ────────────────────────────────────────────────────
     print("> MÓDULO 1 - Gerando roteiro via OpenRouter...")
@@ -66,12 +75,18 @@ def main():
 
     # ── MÓDULO 3: STT + Timestamps ───────────────────────────────────────────
     print("> MÓDULO 3 - Transcrevendo e gerando timestamps...")
-    from modules.stt import transcribe, build_ass
+    from modules.stt import transcribe, build_ass, build_ass_ground_truth
     transcribe(device=args.device)
-    build_ass()
-    print("  timestamps.json e subtitles.ass salvos\n")
+    # Ground Truth: usa o texto do roteiro para eliminar erros de português na legenda
+    try:
+        build_ass_ground_truth(roteiro_data=roteiro)
+        print("  timestamps.json e subtitles.ass salvos (Ground Truth)\n")
+    except Exception as e:
+        print(f"  Ground Truth falhou ({e}), usando Whisper puro como fallback...")
+        build_ass()
+        print("  timestamps.json e subtitles.ass salvos (Whisper fallback)\n")
 
-    # ── MÓDULO 4: B-Roll ─────────────────────────────────────────────────────
+    # MODULO 4: B-Roll
     print("> MÓDULO 4 - Coletando B-Roll e música...")
     from modules.media_collector import collect_clips, download_background_music
     import json

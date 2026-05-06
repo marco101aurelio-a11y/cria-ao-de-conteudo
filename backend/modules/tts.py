@@ -1,88 +1,131 @@
 """
-Módulo 2 — Gerador de Áudio (TTS)
-Converte o roteiro em áudio usando Edge TTS (vozes neurais gratuitas da Microsoft).
-É muito superior ao Kokoro para português (pt-BR) e não requer download de modelos pesados.
+Módulo 2 — Gerador de Áudio (TTS) — v3
+Converte o roteiro em narração usando Edge TTS (vozes neurais gratuitas da Microsoft).
+Superior ao Kokoro para pt-BR — não requer download de modelos pesados.
 
-Voz escolhida: pt-BR-AntonioNeural (Tom sério/masculino ideal para dark videos)
+Voz padrão: pt-BR-AntonioNeural (masculino, sério — ideal para dark video)
+Outras opções: pt-BR-FranciscaNeural, pt-BR-ThalitaNeural
+
+Dependências:
+  pip install edge-tts
+Variáveis de ambiente:
+  TTS_ENGINE   = "local" (edge-tts, default) | "api" (ElevenLabs)
+  ELEVENLABS_API_KEY  (só necessário se TTS_ENGINE=api)
+  ELEVENLABS_VOICE_ID (default: "pNInz6obpgDQGcFmaJgB" — Adam)
+  TTS_VOICE    sobrescreve a voz Edge TTS padrão
+  TTS_RATE     velocidade, ex: "+5%", "0%", "-10%"  (default: "+5%")
 """
-
 import os
 import json
 import asyncio
-import edge_tts
+from pathlib import Path
 
-# ── Configuração ──────────────────────────────────────────────
-MODULE_DIR = os.path.dirname(__file__)
-ROTEIRO_PATH = os.path.join(MODULE_DIR, "..", "output", "roteiro.json")
-OUTPUT_AUDIO = os.path.join(MODULE_DIR, "..", "output", "narration.mp3")
+MODULE_DIR   = os.path.dirname(__file__)
+OUTPUT_DIR   = os.path.join(MODULE_DIR, "..", "output")
+ROTEIRO_PATH = os.path.join(OUTPUT_DIR, "roteiro.json")
+OUTPUT_AUDIO = os.path.join(OUTPUT_DIR, "narration.mp3")
 
-# Vozes pt-BR disponíveis no Edge TTS:
-# pt-BR-AntonioNeural (Masculino - ideal para dark video)
-# pt-BR-FranciscaNeural (Feminina)
-# pt-BR-ThalitaNeural (Feminina)
-VOICE = "pt-BR-AntonioNeural"
+TTS_ENGINE = os.getenv("TTS_ENGINE", "local")
+TTS_VOICE  = os.getenv("TTS_VOICE",  "pt-BR-AntonioNeural")
+TTS_RATE   = os.getenv("TTS_RATE",   "+5%")
 
 
-async def async_generate_audio(roteiro_data: dict) -> str:
-    """Função assíncrona que processa o roteiro e chama o Edge TTS."""
-    print("[Módulo 2] Extraindo falas do roteiro...")
-    
+# ── Edge TTS (local, grátis) ──────────────────────────────────────────────────
+
+async def _edge_tts(texto: str, output_path: str) -> None:
+    import edge_tts  # pip install edge-tts
+    communicate = edge_tts.Communicate(texto, TTS_VOICE, rate=TTS_RATE)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    await communicate.save(output_path)
+
+
+# ── ElevenLabs (API paga) ─────────────────────────────────────────────────────
+
+def _elevenlabs_tts(texto: str, output_path: str) -> None:
+    import requests
+    api_key  = os.getenv("ELEVENLABS_API_KEY", "")
+    voice_id = os.getenv("ELEVENLABS_VOICE_ID", "pNInz6obpgDQGcFmaJgB")
+    if not api_key:
+        raise EnvironmentError("ELEVENLABS_API_KEY não definida no .env")
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    r = requests.post(
+        url,
+        headers={"xi-api-key": api_key, "Content-Type": "application/json"},
+        json={
+            "text": texto,
+            "model_id": "eleven_multilingual_v2",
+            "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
+        },
+        timeout=60,
+    )
+    r.raise_for_status()
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "wb") as f:
+        f.write(r.content)
+
+
+# ── Extração de texto do roteiro ───────────────────────────────────────────────
+
+def _extract_narracao(roteiro_data: dict) -> str:
     falas = []
-    for bloco in roteiro_data.get("blocks", []):
-        if bloco.get("type") == "NARRACAO":
-            # Removemos quebras de linha para a fala ficar fluida
-            texto = bloco.get("text", "").replace("\n", " ").strip()
+    
+    # Tenta 'blocks' ou 'blocos'
+    blocos = roteiro_data.get("blocks") or roteiro_data.get("blocos") or []
+    
+    for bloco in blocos:
+        # Verifica tipo (aceita 'type' ou 'tipo')
+        tipo = bloco.get("type") or bloco.get("tipo")
+        if tipo == "NARRACAO":
+            # Verifica texto (aceita 'text', 'texto' ou 'conteudo')
+            texto = (bloco.get("text") or bloco.get("texto") or bloco.get("conteudo") or "").replace("\n", " ").strip()
             if texto:
-                # Garante que o bloco termine com pontuação para o TTS fazer a pausa correta
-                if texto[-1] not in ".!?,;...":
+                if texto[-1] not in ".!?,;…":
                     texto += "."
                 falas.append(texto)
-    
     if not falas:
-        raise ValueError("Nenhum bloco 'NARRACAO' encontrado no roteiro.")
-
-    # Junta todas as falas
-    texto_completo = " ".join(falas)
+        raise ValueError("[Módulo 2] Nenhum bloco NARRACAO encontrado no roteiro.")
+        
+    full_text = " ".join(falas)
     
-    print(f"[Módulo 2] Texto final montado ({len(texto_completo)} caracteres).")
-    print(f"[Módulo 2] Gerando áudio com a voz: {VOICE}...")
+    # Processa a marcação [pausa]
+    # Edge TTS não processa tags SSML direto na API Python (ele leria "break time" em voz alta).
+    # Para o Edge, usamos a técnica fonética de reticências espaçadas que gera ~500ms de silêncio.
+    # Para o ElevenLabs (api), usamos a tag nativa.
+    if TTS_ENGINE == "api":
+        full_text = full_text.replace("[pausa]", '<break time="500ms" />')
+    else:
+        full_text = full_text.replace("[pausa]", ". . .")
+        
+    return full_text
 
-    # Instancia o TTS ajustando o rate (velocidade). 
-    # Dark videos costumam ter locução ligeiramente mais rápida (+5% a +10%)
-    communicate = edge_tts.Communicate(texto_completo, VOICE, rate="+5%")
-    
-    os.makedirs(os.path.dirname(OUTPUT_AUDIO), exist_ok=True)
-    await communicate.save(OUTPUT_AUDIO)
-    
-    print(f"[Módulo 2] Audio salvo com sucesso em: {OUTPUT_AUDIO}")
-    return OUTPUT_AUDIO
 
+# ── Entry point ────────────────────────────────────────────────────────────────
 
 def generate_audio(roteiro_data: dict = None) -> dict:
     """
-    Função síncrona wrapper (para ser chamada pelo Flask / server.py).
-    
-    Args:
-        roteiro_data: dict contendo o roteiro. Se None, lê do roteiro.json.
+    Gera narration.mp3 a partir do roteiro.
+    Retorna dict com audio_path e status.
     """
     if roteiro_data is None:
-        if not os.path.exists(ROTEIRO_PATH):
-            raise FileNotFoundError(f"Roteiro não encontrado em: {ROTEIRO_PATH}")
+        if not Path(ROTEIRO_PATH).exists():
+            raise FileNotFoundError(f"Roteiro não encontrado: {ROTEIRO_PATH}")
         with open(ROTEIRO_PATH, "r", encoding="utf-8") as f:
             roteiro_data = json.load(f)
 
-    # Executa o loop assíncrono
-    caminho_final = asyncio.run(async_generate_audio(roteiro_data))
-    
-    return {
-        "audio_path": caminho_final,
-        "voice": VOICE,
-        "status": "success"
-    }
+    texto = _extract_narracao(roteiro_data)
+    print(f"[Módulo 2] Texto extraído ({len(texto)} chars). Engine: {TTS_ENGINE}")
+
+    if TTS_ENGINE == "api":
+        print(f"[Módulo 2] Usando ElevenLabs...")
+        _elevenlabs_tts(texto, OUTPUT_AUDIO)
+    else:
+        print(f"[Módulo 2] Usando Edge TTS (voz: {TTS_VOICE}, rate: {TTS_RATE})...")
+        asyncio.run(_edge_tts(texto, OUTPUT_AUDIO))
+
+    print(f"[Módulo 2] Áudio salvo: {OUTPUT_AUDIO}")
+    return {"audio_path": OUTPUT_AUDIO, "engine": TTS_ENGINE, "status": "success"}
+
 
 if __name__ == "__main__":
-    # Teste isolado do módulo
-    try:
-        generate_audio()
-    except Exception as e:
-        print(f"Erro no teste isolado: {e}")
+    generate_audio()

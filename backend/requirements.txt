@@ -26,3 +26,7 @@ pydub==0.25.1
 
 # Utilitários
 ffmpeg-python==0.2.0
+
+# Motor Matemático (Skill #3)
+jax==0.4.26
+jaxlib==0.4.26

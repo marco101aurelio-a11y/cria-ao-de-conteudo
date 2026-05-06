@@ -1,260 +1,310 @@
 """
-MÓDULO 4 — Coletor de Mídia (B-Roll)
-PATCH v2: baixa clips distintos por bloco VISUAL, com corte a cada 3-5s
-"""
+Módulo 4 — Coletor de Mídia (v3)
+Busca B-roll e música de fundo para cada bloco VISUAL do roteiro.
+PATCH v3:
+  - 4 tentativas de keyword por bloco: keyword exata → fallback → visual_context → "dark cinematic"
+  - Baixa até 3 clips DIFERENTES por bloco (sem repetição cross-blocos)
+  - Música: Pixabay Music API com fallback para arquivo silencioso
+  - Salva clip_map.json com lista de clips por bloco e path local
 
+Dependências:
+  pip install requests python-dotenv
+Variáveis de ambiente:
+  PEXELS_API_KEY
+  PIXABAY_API_KEY
+"""
 import os
 import json
-import random
+import time
+import hashlib
 import requests
-from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+MODULE_DIR   = os.path.dirname(__file__)
+OUTPUT_DIR   = os.path.join(MODULE_DIR, "..", "output")
+CLIPS_DIR    = os.path.join(OUTPUT_DIR,  "clips")
+ROTEIRO_PATH = os.path.join(OUTPUT_DIR,  "roteiro.json")
 
-PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
-PIXABAY_API_KEY = os.getenv("PIXABAY_API_KEY")
+PEXELS_API_KEY  = os.getenv("PEXELS_API_KEY",  "")
+PIXABAY_API_KEY = os.getenv("PIXABAY_API_KEY", "")
 
-HEADERS_PEXELS = {"Authorization": PEXELS_API_KEY}
-CLIPS_DIR = "output/clips"
-FALLBACK_KEYWORD = "dark mystery"
-
-# PATCH FIX 1: número de clipes por bloco aumentado para 3
-# Isso garante variação visual dentro de cada bloco de narração
-CLIPS_PER_BLOCK = 3
-
-
-def search_pexels(keyword: str, per_page: int = 10) -> list:
-    """Busca clipes no Pexels para uma keyword. Retorna lista de URLs."""
-    url = "https://api.pexels.com/videos/search"
-    
-    # Randomiza a página só para palavras-chave curtas. Buscas longas perdem muito sentido na página 2+
-    page_num = 1 if len(keyword.split()) > 2 else random.randint(1, 2)
-    
-    params = {
-        "query": keyword,
-        "per_page": per_page,
-        "orientation": "portrait",
-        "page": page_num,
-    }
-    
-    print(f"[M4] Pesquisando '{keyword}' (Página {page_num})")
-    response = requests.get(url, headers=HEADERS_PEXELS, params=params, timeout=15)
-    response.raise_for_status()
-    data = response.json()
-    videos = data.get("videos", [])
-
-    results = []
-    for video in videos:
-        # Filtra apenas clipes entre 3 e 12 segundos
-        duration = video.get("duration", 0)
-        if not (3 <= duration <= 12):
-            continue
-        # Pega o arquivo de maior qualidade disponível em HD
-        files = video.get("video_files", [])
-        hd_files = [f for f in files if f.get("quality") in ("hd", "sd")]
-        if not hd_files:
-            continue
-        # Ordena por largura descendente e pega o melhor
-        hd_files.sort(key=lambda f: f.get("width", 0), reverse=True)
-        results.append({
-            "url": hd_files[0]["link"],
-            "duration": duration,
-            "keyword": keyword,
-        })
-        if len(results) >= per_page:
-            break
-
-    return results
+CLIPS_PER_BLOCK  = 3     # clips diferentes por bloco VISUAL
+MIN_CLIP_SECONDS = 5     # duração mínima de clip aceita (evita micro-clips)
+MAX_RETRIES      = 3     # tentativas HTTP
 
 
-def search_pixabay(keyword: str, per_page: int = 15) -> list:
-    """Busca clipes no Pixabay para uma keyword. Retorna lista de URLs."""
-    if not PIXABAY_API_KEY:
-        return []
-        
-    url = "https://pixabay.com/api/videos/"
-    params = {
-        "key": PIXABAY_API_KEY,
-        "q": keyword,
-        "per_page": per_page,
-    }
-    
-    print(f"[M4] Pesquisando '{keyword}' no Pixabay...")
+# ── Helpers HTTP ───────────────────────────────────────────────────────────────
+
+def _get(url: str, headers: dict = None, params: dict = None, timeout: int = 15) -> dict:
+    for attempt in range(MAX_RETRIES):
+        try:
+            r = requests.get(url, headers=headers, params=params, timeout=timeout)
+            r.raise_for_status()
+            return r.json()
+        except requests.RequestException as e:
+            if attempt == MAX_RETRIES - 1:
+                raise
+            time.sleep(1.5 ** attempt)
+
+
+def _download(url: str, dest: Path) -> bool:
+    """Baixa arquivo para dest. Retorna True se bem-sucedido."""
+    if dest.exists() and dest.stat().st_size > 10_000:
+        return True   # já baixado
     try:
-        response = requests.get(url, params=params, timeout=15)
-        response.raise_for_status()
-        data = response.json()
-        hits = data.get("hits", [])
-        
-        results = []
-        for hit in hits:
-            duration = hit.get("duration", 0)
-            if not (3 <= duration <= 15):
-                continue
-            
-            # Pega o video mp4 com maior qualidade
-            videos = hit.get("videos", {})
-            best_url = None
-            for size in ["large", "medium", "small"]:
-                if size in videos and videos[size].get("url"):
-                    best_url = videos[size]["url"]
-                    break
-                    
-            if best_url:
-                results.append({
-                    "url": best_url,
-                    "duration": duration,
-                    "keyword": keyword,
-                })
-                if len(results) >= per_page:
-                    break
-        return results
-    except Exception as e:
-        print(f"[ERRO] Pixabay API falhou: {e}")
-        return []
-
-
-def download_clip(url: str, dest_path: str) -> bool:
-    """Faz download de um clipe e salva em dest_path. Retorna True se OK."""
-    try:
-        response = requests.get(url, stream=True, timeout=60)
-        response.raise_for_status()
-        with open(dest_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=1024 * 64):
+        r = requests.get(url, timeout=60, stream=True)
+        r.raise_for_status()
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with open(dest, "wb") as f:
+            for chunk in r.iter_content(chunk_size=65536):
                 f.write(chunk)
         return True
     except Exception as e:
-        print(f"[ERRO] Download falhou: {url} — {e}")
+        print(f"    [download] Erro: {e}")
         return False
 
 
-def collect_clips(roteiro_path: str = "output/roteiro.json") -> dict:
+def _url_hash(url: str) -> str:
+    return hashlib.md5(url.encode()).hexdigest()[:10]
+
+
+# ── Pexels ─────────────────────────────────────────────────────────────────────
+
+def _search_pexels(query: str, used_urls: set, max_results: int = 8) -> list:
+    """Retorna lista de dicts {url, duration} de clips do Pexels."""
+    if not PEXELS_API_KEY:
+        return []
+    try:
+        data = _get(
+            "https://api.pexels.com/videos/search",
+            headers={"Authorization": PEXELS_API_KEY},
+            params={"query": query, "per_page": max_results, "orientation": "portrait"},
+        )
+    except Exception as e:
+        print(f"    [Pexels] Erro na busca '{query}': {e}")
+        return []
+
+    results = []
+    for video in data.get("videos", []):
+        duration = video.get("duration", 0)
+        if duration < MIN_CLIP_SECONDS:
+            continue
+        # Pega o arquivo de maior resolução ≤ 1080p
+        files = sorted(
+            [f for f in video.get("video_files", []) if f.get("width", 0) <= 1080],
+            key=lambda f: f.get("width", 0),
+            reverse=True,
+        )
+        if not files:
+            continue
+        url = files[0]["link"]
+        if url not in used_urls:
+            results.append({"url": url, "duration": duration, "source": "pexels"})
+    return results
+
+
+# ── Pixabay Vídeo ──────────────────────────────────────────────────────────────
+
+def _search_pixabay_video(query: str, used_urls: set, max_results: int = 8) -> list:
+    """Retorna lista de dicts {url, duration} de vídeos do Pixabay."""
+    if not PIXABAY_API_KEY:
+        return []
+    try:
+        data = _get(
+            "https://pixabay.com/api/videos/",
+            params={
+                "key":          PIXABAY_API_KEY,
+                "q":            query,
+                "per_page":     max_results,
+                "video_type":   "film",
+            },
+        )
+    except Exception as e:
+        print(f"    [Pixabay] Erro na busca '{query}': {e}")
+        return []
+
+    results = []
+    for hit in data.get("hits", []):
+        videos = hit.get("videos", {})
+        # Preferência: large → medium → small
+        for size in ("large", "medium", "small"):
+            v = videos.get(size, {})
+            url = v.get("url", "")
+            if url and url not in used_urls:
+                duration = hit.get("duration", 0)
+                if duration >= MIN_CLIP_SECONDS:
+                    results.append({"url": url, "duration": duration, "source": "pixabay"})
+                break
+    return results
+
+
+# ── Coleta por bloco ───────────────────────────────────────────────────────────
+
+def _collect_for_block(bloco: dict, used_urls: set, roteiro_data: dict) -> list:
     """
-    Para cada bloco VISUAL do roteiro, baixa CLIPS_PER_BLOCK clipes distintos.
-    Retorna mapa: { "bloco_index": ["output/clips/b0_c0.mp4", ...] }
+    Tenta 4 queries em ordem até ter CLIPS_PER_BLOCK clips únicos.
+    Retorna lista de dicts com path local e duração.
+    """
+    block_id      = bloco.get("id", 0)
+    # Aceita 'keyword', 'text' ou 'conteudo'
+    keyword       = (bloco.get("keyword") or bloco.get("text") or bloco.get("conteudo") or "dark cinematic")
+    keyword_fb    = bloco.get("keyword_fallback", "dark cinematic")
+    visual_ctx    = bloco.get("visual_context", "")
+    duration_hint = bloco.get("duration_hint", 4.0)
+
+    # Gera uma query a partir do visual_context (primeiras 4 palavras relevantes)
+    # PRIORIDADE: Garantir que o tema principal esteja na busca
+    tema_clean = roteiro_data.get("tema", "dark cinematic")
     
-    PATCH FIX 1: em vez de 1 clip por bloco, agora baixa N clips por bloco
-    permitindo cortes internos e maior variação visual.
+    # Se a keyword for em português ou curta, vamos tentar injetar o tema
+    def clean_query(q):
+        # Remove caracteres especiais e garante minúsculas
+        return "".join(c for c in q if c.isalnum() or c.isspace()).lower().strip()
+
+    main_query = clean_query(keyword)
+    
+    # Lista de tentativas inteligentes
+    queries_to_try = []
+    
+    # 1. Keyword exata (se o LLM fez o trabalho certo em inglês)
+    queries_to_try.append(main_query)
+    
+    # 2. Keyword + Tema (Garante contexto)
+    if len(main_query.split()) < 3:
+        queries_to_try.append(f"{main_query} {tema_clean}")
+
+    # 3. Contexto Visual (Primeiras palavras)
+    if visual_ctx:
+        ctx_words = clean_query(visual_ctx).split()
+        queries_to_try.append(" ".join(ctx_words[:5]))
+        
+    # 4. Tema Puro + Cinematic (Última chance de ser relevante)
+    queries_to_try.append(f"{tema_clean} cinematic mystery")
+    queries_to_try.append("dark cinematic mystery")
+
+    collected = []
+    for query in queries_to_try:
+        if len(collected) >= CLIPS_PER_BLOCK:
+            break
+
+        print(f"    [B{block_id}] Buscando: '{query}'")
+
+        candidates = (
+            _search_pexels(query, used_urls)
+            + _search_pixabay_video(query, used_urls)
+        )
+
+        for candidate in candidates:
+            if len(collected) >= CLIPS_PER_BLOCK:
+                break
+            url = candidate["url"]
+            if url in used_urls:
+                continue
+
+            filename = f"b{block_id:02d}_{_url_hash(url)}.mp4"
+            dest     = Path(CLIPS_DIR) / filename
+
+            print(f"      - Baixando {candidate['source']}: {filename}")
+            if _download(url, dest):
+                used_urls.add(url)
+                collected.append({
+                    "path":         str(dest),
+                    "duration":     candidate["duration"],
+                    "source":       candidate["source"],
+                    "keyword_used": query,
+                })
+
+    if not collected:
+        print(f"    [B{block_id}] Pexels e Pixabay falharam. Acionando Fallback de Imagem IA (Pollinations)...")
+        from modules.image_generator import generate_fallback_clip
+        import time
+        
+        filename = f"b{block_id:02d}_iagen_{int(time.time())}.mp4"
+        dest = Path(CLIPS_DIR) / filename
+        
+        # Passamos o visual_context, ou a keyword caso não tenha contexto
+        if generate_fallback_clip(visual_ctx or keyword, str(dest)):
+            collected.append({
+                "path":         str(dest),
+                "duration":     5.0,  # O script gerador cria MP4 de 5 segundos
+                "source":       "pollinations_ai",
+                "keyword_used": "ai_generated",
+            })
+        else:
+            print(f"    [B{block_id}] AVISO FATAL: Todas as fontes falharam. Bloco terá tela preta.")
+
+    return collected
+
+
+# ── Música de fundo ────────────────────────────────────────────────────────────
+
+def download_background_music() -> str:
+    """Baixa faixa de música instrumental dark do Pixabay. Retorna path."""
+    music_path = os.path.join(OUTPUT_DIR, "background.mp3")
+    if os.path.exists(music_path) and os.path.getsize(music_path) > 50_000:
+        print("[Módulo 4] Música já baixada, reutilizando.")
+        return music_path
+
+    if not PIXABAY_API_KEY:
+        print("[Módulo 4] PIXABAY_API_KEY ausente — pulando música.")
+        return ""
+
+    queries = ["dark ambient cinematic", "mystery thriller background", "dark instrumental"]
+    for q in queries:
+        try:
+            data = _get(
+                "https://pixabay.com/api/",
+                params={
+                    "key":      PIXABAY_API_KEY,
+                    "q":        q,
+                    "category": "music",
+                    "per_page": 5,
+                },
+            )
+            for hit in data.get("hits", []):
+                url = hit.get("audio", hit.get("previewURL", ""))
+                if url:
+                    print(f"[Módulo 4] Baixando música: {q}")
+                    if _download(url, Path(music_path)):
+                        return music_path
+        except Exception as e:
+            print(f"[Módulo 4] Erro ao buscar música '{q}': {e}")
+
+    print("[Módulo 4] Nenhuma música encontrada.")
+    return ""
+
+
+# ── Entry point ────────────────────────────────────────────────────────────────
+
+def collect_clips(roteiro_data: dict = None) -> dict:
     """
+    Coleta clips para todos os blocos VISUAL do roteiro.
+    Retorna clip_map: {block_id: [{"path": ..., "duration": ...}, ...]}
+    """
+    if roteiro_data is None:
+        with open(ROTEIRO_PATH, "r", encoding="utf-8") as f:
+            roteiro_data = json.load(f)
+
     os.makedirs(CLIPS_DIR, exist_ok=True)
 
-    with open(roteiro_path, "r", encoding="utf-8") as f:
-        roteiro = json.load(f)
+    blocos_visuais = [b for b in roteiro_data["blocks"] if (b.get("type") or b.get("tipo")) == "VISUAL"]
+    print(f"[Módulo 4] {len(blocos_visuais)} blocos VISUAL para coletar B-roll")
 
-    blocks = roteiro.get("blocks", [])
-    visual_blocks = [
-        (i, b) for i, b in enumerate(blocks) if b["type"] == "VISUAL"
-    ]
+    used_urls: set = set()
+    clip_map: dict = {}
 
-    clip_map = {}
-    used_urls = set()  # Evita baixar o mesmo clipe duas vezes
+    for bloco in blocos_visuais:
+        clips = _collect_for_block(bloco, used_urls, roteiro_data)
+        clip_map[str(bloco["id"])] = clips
 
-    for block_idx, block in visual_blocks:
-        keyword = block.get("keyword", FALLBACK_KEYWORD)
-        print(f"[M4] Buscando clips para bloco {block_idx}: '{keyword}'")
-
-        results_pexels = search_pexels(keyword, per_page=15)
-        results_pixabay = search_pixabay(keyword, per_page=15)
-        results = results_pexels + results_pixabay
-
-        # Fallback se não encontrar nada em nenhum dos dois
-        if not results:
-            fallback_kw = " ".join(keyword.split()[:2])
-            print(f"[M4] Sem resultado para '{keyword}', tentando fallback parcial: '{fallback_kw}'")
-            results_pexels = search_pexels(fallback_kw, per_page=15)
-            results_pixabay = search_pixabay(fallback_kw, per_page=15)
-            results = results_pexels + results_pixabay
-            
-            if not results:
-                print(f"[M4] Sem resultado para fallback parcial, usando fallback geral.")
-                results_pexels = search_pexels("cinematic dark", per_page=15)
-                results_pixabay = search_pixabay("cinematic dark", per_page=15)
-                results = results_pexels + results_pixabay
-
-        # Filtra URLs já usadas para garantir clips distintos
-        results = [r for r in results if r["url"] not in used_urls]
-
-        # Embaralha para variedade
-        random.shuffle(results)
-
-        downloaded = []
-        for clip_num in range(CLIPS_PER_BLOCK):
-            if not results:
-                print(f"[M4] Clips esgotados para bloco {block_idx}.")
-                break
-
-            clip_data = results.pop(0)
-            dest = os.path.join(CLIPS_DIR, f"b{block_idx}_c{clip_num}.mp4")
-
-            print(f"[M4]   Baixando clip {clip_num+1}/{CLIPS_PER_BLOCK}...")
-            ok = download_clip(clip_data["url"], dest)
-            if ok:
-                downloaded.append(dest)
-                used_urls.add(clip_data["url"])
-
-        clip_map[str(block_idx)] = downloaded
-        print(f"[M4] Bloco {block_idx}: {len(downloaded)} clips baixados.")
+    clip_map_path = os.path.join(OUTPUT_DIR, "clip_map.json")
+    with open(clip_map_path, "w", encoding="utf-8") as f:
+        json.dump(clip_map, f, ensure_ascii=False, indent=2)
+    print(f"[Módulo 4] clip_map.json salvo ({len(clip_map)} blocos).")
 
     return clip_map
 
 
-def download_background_music(dest: str = "output/background.mp3") -> bool:
-    """Baixa uma faixa de música dark cinematic usando a Jamendo API."""
-    client_id = os.getenv("JAMENDO_CLIENT_ID")
-    
-    if not client_id:
-        print("[M4] ⚠️ AVISO: JAMENDO_CLIENT_ID não configurado no .env.")
-        print("[M4] 👉 Crie uma conta grátis em developer.jamendo.com para gerar o Client ID e adicione ao .env.")
-        print("[M4] Ignorando música de fundo automatizada.")
-        return False
-
-    url = "https://api.jamendo.com/v3.0/tracks/"
-    params = {
-        "client_id": client_id,
-        "format": "json",
-        "tags": "dark,cinematic",
-        "limit": 10,
-        "order": "popularity_month"
-    }
-    
-    print("[M4] Buscando trilha sonora na Jamendo API...")
-    try:
-        response = requests.get(url, params=params, timeout=15)
-        response.raise_for_status()
-        data = response.json()
-        
-        results = data.get("results", [])
-        if not results:
-            print("[M4] Nenhuma música encontrada.")
-            return False
-            
-        # Pega uma música aleatória do top 10 do mês para não repetir
-        track = random.choice(results)
-        audio_url = track.get("audiodownload")
-        
-        if not audio_url:
-            print("[M4] Faixa sem permissão de download.")
-            return False
-            
-        print(f"[M4] Baixando trilha: {track.get('name')} (por {track.get('artist_name')})...")
-        
-        ok = download_clip(audio_url, dest)
-        if ok:
-            print("[M4] ✅ Música de fundo baixada com sucesso!")
-            return True
-        return False
-        
-    except Exception as e:
-        print(f"[ERRO] Falha ao baixar música do Jamendo: {e}")
-        return False
-
-
 if __name__ == "__main__":
-    clip_map = collect_clips()
+    collect_clips()
     download_background_music()
-
-    # Salva mapa de clips para uso no Módulo 5
-    with open("output/clip_map.json", "w") as f:
-        json.dump(clip_map, f, indent=2)
-
-    print("[M4] Concluído. clip_map.json salvo.")

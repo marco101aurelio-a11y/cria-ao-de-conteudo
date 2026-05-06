@@ -41,12 +41,19 @@ def run_hunter(niche: str = "#marketing #darkvideo"):
     try:
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         
-        # Simula a inserção na tabela 'viral_references'
-        for video in found_videos:
-            print(f"[Módulo 0] Salvando -> {video['url']} ({video['views']} views)")
-            # Em produção seria: supabase.table("viral_references").insert(video).execute()
+        # Insere os vídeos encontrados na tabela real
+        data_to_insert = []
+        for v in found_videos:
+            data_to_insert.append({
+                "niche": niche,
+                "url": v["url"],
+                "views": v["views"],
+                "transcript": v["transcript"]
+            })
         
-        print("[Módulo 0] ✅ Banco de dados atualizado com novos virais!")
+        response = supabase.table("viral_references").insert(data_to_insert).execute()
+        
+        print(f"[Módulo 0] ✅ {len(data_to_insert)} referências salvas no Supabase!")
         return {"status": "success", "data": found_videos}
         
     except Exception as e:
