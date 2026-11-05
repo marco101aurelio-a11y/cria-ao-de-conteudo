@@ -18,7 +18,11 @@ load_dotenv()
 
 def check_env():
     """Valida variáveis obrigatórias antes de iniciar."""
-    required = ["OPENROUTER_API_KEY", "PEXELS_API_KEY", "PIXABAY_API_KEY"]
+    use_ollama = os.getenv("USE_OLLAMA", "False").lower() in ("true", "1", "yes")
+    required = ["PEXELS_API_KEY", "PIXABAY_API_KEY"]
+    if not use_ollama:
+        required.append("OPENROUTER_API_KEY")
+
     missing = [k for k in required if not os.getenv(k)]
     if missing:
         print(f"[ERRO] Variáveis de ambiente ausentes no .env: {', '.join(missing)}")
@@ -62,7 +66,7 @@ def main():
         print("  Varredura do Módulo 0 concluída!\n")
 
     # ── MÓDULO 1: Roteiro ────────────────────────────────────────────────────
-    print("> MÓDULO 1 - Gerando roteiro via OpenRouter...")
+    print("> MÓDULO 1 - Gerando roteiro...")
     from modules.script_generator import generate_script
     roteiro = generate_script(tema=args.tema)
     print(f"  Roteiro gerado: {len(roteiro['blocks'])} blocos\n")

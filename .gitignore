@@ -4,12 +4,20 @@
 backend/.env
 .env
 
-# Arquivos gerados pelo pipeline (muito pesados para o Git)
+# Arquivos gerados pelo pipeline e clipes locais pesados
 backend/output/
+backend/user_clips/
+backend/scratch/
 *.mp3
 *.mp4
 *.wav
 *.srt
+*.zip
+
+# Pastas de servidores/ambientes locais pesados
+llama3.2 servidor  local/
+atualizacao motor v3/Backend-perplexity/
+temp_patch/
 
 # Modelos de ML (Whisper, Kokoro — baixados automaticamente)
 *.onnx

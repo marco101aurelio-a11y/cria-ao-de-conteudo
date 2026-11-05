@@ -61,15 +61,20 @@ def _run(cmd: list, step: str) -> None:
 
 
 def _get_duration(path: str) -> float:
-    """Retorna duração de arquivo de mídia em segundos via ffprobe."""
-    cmd = [
-        "ffprobe", "-v", "quiet",
-        "-show_entries", "format=duration",
-        "-of", "csv=p=0",
-        path,
-    ]
-    out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode().strip()
-    return float(out) if out else 0.0
+    """Retorna duração de arquivo de mídia em segundos via ffprobe. Retorna 0.0 se falhar."""
+    if not os.path.exists(path) or os.path.getsize(path) < 1000:
+        return 0.0
+    try:
+        cmd = [
+            "ffprobe", "-v", "quiet",
+            "-show_entries", "format=duration",
+            "-of", "csv=p=0",
+            path,
+        ]
+        out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode().strip()
+        return float(out) if out else 0.0
+    except:
+        return 0.0
 
 
 def _find_cut_points(block_start: float, block_end: float, n_clips: int, silences: list) -> list:
@@ -108,11 +113,13 @@ def _find_cut_points(block_start: float, block_end: float, n_clips: int, silence
             actual_cuts.append(ideal)  # fallback: corte igual
     actual_cuts.append(block_end)
 
-    # Converte para durações
-    durations = [
-        round(actual_cuts[i + 1] - actual_cuts[i], 3)
-        for i in range(n_clips)
-    ]
+    # Converte para durações e garante um mínimo de 0.5s para não quebrar o FFmpeg
+    durations = []
+    for i in range(n_clips):
+        dur = round(actual_cuts[i + 1] - actual_cuts[i], 3)
+        if dur < 0.5:
+            dur = 0.5
+        durations.append(dur)
     return durations
 
 
@@ -120,16 +127,18 @@ def _find_cut_points(block_start: float, block_end: float, n_clips: int, silence
 
 def _apply_ken_burns(src: str, dest: str, duration: float) -> None:
     """
-    Recorta `duration` segundos do src, aplica Ken Burns (zoom 1→1.08)
-    e formata para 1080x1920 (portrait), 30fps.
+    Recorta `duration` segundos do src, aplica Ken Burns (zoom 1.0 -> 1.08)
+    mantendo a resolução nativa de 1080x1920 de forma cristalina.
     """
     frames = max(int(duration * FPS), 1)
-    # zoompan: zoom de 1.0 a 1.08 ao longo de `frames` frames
+    
+    # IMPORTANTE: Forçar o zoompan a operar nativamente em 1080x1920
     vf = (
         f"scale=2*{CANVAS_W}:2*{CANVAS_H}:force_original_aspect_ratio=increase,"
         f"crop={CANVAS_W}:{CANVAS_H},"
         f"zoompan=z='min(zoom+0.0008,1.08)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
         f":d={frames}:s={CANVAS_W}x{CANVAS_H}:fps={FPS},"
+        f"scale={CANVAS_W}:{CANVAS_H},"
         f"setsar=1"
     )
     cmd = [
@@ -139,13 +148,15 @@ def _apply_ken_burns(src: str, dest: str, duration: float) -> None:
         "-t", str(duration),
         "-vf", vf,
         "-an",
-        "-c:v", VCODEC, "-preset", "p4", "-tune", "hq", "-crf", "23" if VCODEC == "libx264" else "0",
+        "-c:v", VCODEC,
+        "-preset", "slow",     # Codificação lenta para máxima qualidade
+        "-crf", "18",          # CRF 18 oferece qualidade visualmente sem perdas
         "-r", str(FPS),
+        "-pix_fmt", "yuv420p", # Garante compatibilidade de cores ideal
         "-vsync", "cfr",
         dest,
     ]
     _run(cmd, "ken_burns")
-
 
 # ── Fade in/out num clip ───────────────────────────────────────────────────────
 
@@ -246,14 +257,30 @@ def assemble(
                 src_path = clip_info.get("path", "")
                 if not src_path or not Path(src_path).exists():
                     continue
+                
+                # Verifica se o arquivo de vídeo é válido e tem conteúdo
+                actual_src_dur = _get_duration(src_path)
+                if actual_src_dur < 0.2:
+                    print(f"    [AVISO] Clip corrompido ou muito curto ignorado: {src_path}")
+                    continue
 
-                clip_dur    = min(cut_durs[sub_idx], _get_duration(src_path))
+                clip_dur = min(cut_durs[sub_idx], actual_src_dur)
+                
+                # Pula clips que ficarem com duração inválida após o min/max
+                if clip_dur < 0.1:
+                    print(f"    [AVISO] Clip {src_path} ignorado (duração insuficiente: {clip_dur}s)")
+                    continue
+
                 kb_path     = os.path.join(tmpdir, f"kb_{block_id}_{sub_idx}.mp4")
                 faded_path  = os.path.join(tmpdir, f"fade_{block_id}_{sub_idx}.mp4")
 
-                _apply_ken_burns(src_path, kb_path, clip_dur)
-                _add_fade(kb_path, faded_path, clip_dur)
-                processed_clips.append(faded_path)
+                try:
+                    _apply_ken_burns(src_path, kb_path, clip_dur)
+                    _add_fade(kb_path, faded_path, clip_dur)
+                    processed_clips.append(faded_path)
+                except Exception as e:
+                    print(f"    [ERRO] Falha ao processar clip {src_path}: {e}")
+                    continue
 
         if not processed_clips:
             raise RuntimeError("[Módulo 5] Nenhum clip processado — verifique clip_map.json")
